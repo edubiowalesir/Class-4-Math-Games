@@ -1,39 +1,672 @@
-<a href="Ch%206/class-height-chart.html">
-    <button>📏 Class Height Chart</button>
-</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class 4 Mathematics Games | Chapter 6 - Fun with Measurement</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5d6880;
+      --paper: #ffffff;
+      --soft: #f5f7fb;
+      --blue: #2563eb;
+      --green: #12b981;
+      --amber: #f59e0b;
+      --pink: #e84d89;
+      --shadow: 0 18px 45px rgba(24, 35, 69, 0.15);
+      --radius: 22px;
+    }
 
-<a href="Ch%206/convert-and-conquer-buzzer.html">
-    <button>⚡ Convert & Conquer</button>
-</a>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-<a href="Ch%206/length-match-mania.html">
-    <button>🧩 Length Match Mania</button>
-</a>
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 8%, rgba(37, 99, 235, 0.20), transparent 28%),
+        radial-gradient(circle at 92% 12%, rgba(18, 185, 129, 0.20), transparent 30%),
+        linear-gradient(135deg, #f8fbff 0%, #eef7f3 45%, #fff8ee 100%);
+    }
 
-<a href="Ch%206/measure-it-virtual-ruler.html">
-    <button>📐 Virtual Ruler</button>
-</a>
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-<a href="Ch%206/number-line-detective.html">
-    <button>🕵️ Number Line Detective</button>
-</a>
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 22px;
+    }
 
-<a href="Ch%206/number-line-detective_1.html">
-    <button>🔍 Number Line Detective 2</button>
-</a>
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
 
-<a href="Ch%206/perimeter-kabaddi-raid.html">
-    <button>🏃 Kabaddi Raid</button>
-</a>
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
 
-<a href="Ch%206/perimeter-walker-ct.html">
-    <button>🚶 Perimeter Walker</button>
-</a>
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
+      font-size: 22px;
+    }
 
-<a href="Ch%206/tape-measure-tug-of-war.html">
-    <button>🎯 Tape Measure Tug of War</button>
-</a>
+    .brand-name {
+      font-size: clamp(1rem, 2.2vw, 1.22rem);
+    }
 
-<a href="Ch%206/treasure-of-measure-ia.html">
-    <button>💎 Treasure of Measure</button>
-</a>
+    .badge {
+      padding: 10px 14px;
+      border: 1px solid rgba(37, 99, 235, 0.16);
+      border-radius: 999px;
+      color: #23426f;
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 0.92rem;
+      font-weight: 700;
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 330px;
+      display: grid;
+      align-items: center;
+      padding: clamp(34px, 6vw, 64px);
+      border-radius: 32px;
+      color: #fff;
+      background:
+        linear-gradient(120deg, rgba(19, 32, 67, 0.90), rgba(22, 85, 125, 0.70)),
+        linear-gradient(135deg, #2563eb 0%, #12b981 54%, #f59e0b 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 78%);
+    }
+
+    .hero::after {
+      right: -80px;
+      bottom: -120px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      border: 42px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.13);
+      font-size: 0.94rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 740px;
+      margin-bottom: 14px;
+      font-size: clamp(2.35rem, 6vw, 5.3rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 680px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: clamp(1.02rem, 2.5vw, 1.3rem);
+      line-height: 1.55;
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      min-width: 138px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(8px);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.88rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      margin: 30px 0 22px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.08rem;
+    }
+
+    #gameSearch {
+      width: 100%;
+      min-height: 58px;
+      padding: 0 20px 0 52px;
+      border: 1px solid rgba(37, 99, 235, 0.18);
+      border-radius: 18px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 10px 30px rgba(24, 35, 69, 0.08);
+      color: var(--ink);
+      font-size: 1rem;
+      font-weight: 700;
+      transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    }
+
+    #gameSearch:focus {
+      border-color: rgba(37, 99, 235, 0.55);
+      box-shadow: 0 14px 34px rgba(37, 99, 235, 0.14);
+      transform: translateY(-1px);
+    }
+
+    .counter {
+      min-height: 58px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border-radius: 18px;
+      color: #174238;
+      background: rgba(18, 185, 129, 0.14);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .game-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px;
+      border: 1px solid rgba(23, 32, 51, 0.08);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 14px 32px rgba(24, 35, 69, 0.09);
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
+
+    .game-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 7px;
+      background: var(--accent);
+    }
+
+    .game-card::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      top: 54px;
+      width: 118px;
+      height: 118px;
+      border-radius: 32px;
+      background: var(--accent-soft);
+      transform: rotate(18deg);
+      transition: transform 260ms ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(37, 99, 235, 0.20);
+      box-shadow: 0 22px 46px rgba(24, 35, 69, 0.16);
+    }
+
+    .game-card:hover::after {
+      transform: rotate(28deg) scale(1.08);
+    }
+
+    .card-top,
+    .card-bottom {
+      position: relative;
+      z-index: 1;
+    }
+
+    .icon {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 18px;
+      background: var(--accent-soft);
+      font-size: 2rem;
+    }
+
+    .game-card h2 {
+      margin-bottom: 10px;
+      font-size: 1.18rem;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .game-card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .play-button {
+      width: 100%;
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      border-radius: 15px;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 800;
+      box-shadow: 0 12px 24px var(--button-shadow);
+      transition: transform 180ms ease, filter 180ms ease;
+    }
+
+    .play-button:hover {
+      transform: translateY(-2px);
+      filter: saturate(1.1) brightness(1.03);
+    }
+
+    .empty-state {
+      display: none;
+      margin: 24px 0;
+      padding: 30px;
+      border: 1px dashed rgba(37, 99, 235, 0.35);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.78);
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    footer {
+      margin-top: 34px;
+      padding: 24px 0 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    footer strong {
+      color: var(--ink);
+    }
+
+    .theme-blue {
+      --accent: linear-gradient(135deg, #2563eb, #23a5f6);
+      --accent-soft: rgba(37, 99, 235, 0.13);
+      --button-shadow: rgba(37, 99, 235, 0.28);
+    }
+
+    .theme-green {
+      --accent: linear-gradient(135deg, #059669, #22c55e);
+      --accent-soft: rgba(18, 185, 129, 0.15);
+      --button-shadow: rgba(18, 185, 129, 0.28);
+    }
+
+    .theme-amber {
+      --accent: linear-gradient(135deg, #f59e0b, #f97316);
+      --accent-soft: rgba(245, 158, 11, 0.16);
+      --button-shadow: rgba(245, 158, 11, 0.30);
+    }
+
+    .theme-pink {
+      --accent: linear-gradient(135deg, #db2777, #f43f5e);
+      --accent-soft: rgba(232, 77, 137, 0.14);
+      --button-shadow: rgba(232, 77, 137, 0.26);
+    }
+
+    .theme-violet {
+      --accent: linear-gradient(135deg, #7c3aed, #4f46e5);
+      --accent-soft: rgba(124, 58, 237, 0.12);
+      --button-shadow: rgba(124, 58, 237, 0.24);
+    }
+
+    .theme-teal {
+      --accent: linear-gradient(135deg, #0f766e, #06b6d4);
+      --accent-soft: rgba(6, 182, 212, 0.13);
+      --button-shadow: rgba(6, 182, 212, 0.25);
+    }
+
+    @media (max-width: 1040px) {
+      .games-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 24px, 1180px);
+        padding-top: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .badge {
+        white-space: normal;
+      }
+
+      .hero {
+        min-height: 390px;
+        border-radius: 24px;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .counter {
+        justify-content: flex-start;
+      }
+
+      .games-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero {
+        padding: 28px 22px;
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .games-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .game-card {
+        min-height: 225px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="topbar" aria-label="Page header">
+      <a class="brand" href="#" aria-label="KVSEContent homepage">
+        <span class="brand-mark" aria-hidden="true">K</span>
+        <span class="brand-name">KVSEContent</span>
+      </a>
+      <div class="badge">Class 4 Mathematics Games</div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-content">
+        <div class="kicker">Measurement Practice Arcade</div>
+        <h1>Chapter 6 – Fun with Measurement</h1>
+        <p class="subtitle">
+          Play quick, colorful math games that help students compare heights,
+          read rulers, work with number lines, and explore perimeter.
+        </p>
+        <div class="hero-stats" aria-label="Game collection summary">
+          <div class="stat">
+            <strong>10</strong>
+            <span>Interactive Games</span>
+          </div>
+          <div class="stat">
+            <strong>Class 4</strong>
+            <span>Math Practice</span>
+          </div>
+          <div class="stat">
+            <strong>Chapter 6</strong>
+            <span>Measurement Skills</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar" aria-label="Search games">
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input
+          id="gameSearch"
+          type="search"
+          placeholder="Search games..."
+          autocomplete="off"
+          aria-label="Search games"
+        />
+      </div>
+      <div class="counter" id="gameCounter">10 Interactive Games</div>
+    </section>
+
+    <section class="games-grid" id="gamesGrid" aria-label="Measurement games">
+      <article class="game-card theme-blue" data-title="Class Height Chart" data-keywords="height compare chart students measurement">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">📏</div>
+          <h2>Class Height Chart</h2>
+          <p>Compare student heights and learn how measurements can be organized clearly.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/class-height-chart.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-green" data-title="Convert & Conquer Buzzer" data-keywords="convert units buzzer centimeter meter measurement">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">⚡</div>
+          <h2>Convert & Conquer</h2>
+          <p>Answer fast conversion questions and build confidence with measurement units.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/convert-and-conquer-buzzer.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-amber" data-title="Length Match Mania" data-keywords="length match compare estimate mania">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🧩</div>
+          <h2>Length Match Mania</h2>
+          <p>Match objects with sensible lengths and sharpen estimation skills.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/length-match-mania.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-pink" data-title="Measure It Virtual Ruler" data-keywords="measure ruler virtual length object">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">📐</div>
+          <h2>Measure It: Virtual Ruler</h2>
+          <p>Use a ruler on screen and practice reading lengths accurately.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/measure-it-virtual-ruler.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-violet" data-title="Number Line Detective" data-keywords="number line detective missing numbers intervals">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🕵️</div>
+          <h2>Number Line Detective</h2>
+          <p>Investigate number lines and find missing values using smart clues.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/number-line-detective.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-teal" data-title="Number Line Detective Challenge" data-keywords="number line detective challenge practice intervals">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🔎</div>
+          <h2>Number Line Detective Challenge</h2>
+          <p>Solve another set of number-line puzzles with careful observation.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/number-line-detective_1.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-blue" data-title="Perimeter Kabaddi Raid" data-keywords="perimeter kabaddi raid boundary distance">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🏃</div>
+          <h2>Perimeter Kabaddi Raid</h2>
+          <p>Calculate boundaries while moving through a lively kabaddi-themed challenge.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/perimeter-kabaddi-raid.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-green" data-title="Perimeter Walker CT" data-keywords="perimeter walker path boundary shape">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🚶</div>
+          <h2>Perimeter Walker</h2>
+          <p>Walk around shapes and learn how side lengths add up to perimeter.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/perimeter-walker-ct.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-amber" data-title="Tape Measure Tug of War" data-keywords="tape measure tug war length compare">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">🪢</div>
+          <h2>Tape Measure Tug-of-War</h2>
+          <p>Pull, compare, and read measurements in a fun length battle.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/tape-measure-tug-of-war.html">▶ Play Game</a>
+        </div>
+      </article>
+
+      <article class="game-card theme-pink" data-title="Treasure of Measure IA" data-keywords="treasure measure adventure units ruler">
+        <div class="card-top">
+          <div class="icon" aria-hidden="true">💎</div>
+          <h2>Treasure of Measure</h2>
+          <p>Follow measurement clues, solve puzzles, and unlock the treasure.</p>
+        </div>
+        <div class="card-bottom">
+          <a class="play-button" href="Ch%206/treasure-of-measure-ia.html">▶ Play Game</a>
+        </div>
+      </article>
+    </section>
+
+    <div class="empty-state" id="emptyState">
+      No games found. Try searching for ruler, perimeter, height, or number line.
+    </div>
+
+    <footer>
+      Powered by <strong>KVSEContent.com</strong>
+    </footer>
+  </main>
+
+  <script>
+    const searchInput = document.getElementById("gameSearch");
+    const cards = Array.from(document.querySelectorAll(".game-card"));
+    const counter = document.getElementById("gameCounter");
+    const emptyState = document.getElementById("emptyState");
+
+    function updateGames() {
+      const query = searchInput.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const text = [
+          card.dataset.title,
+          card.dataset.keywords,
+          card.querySelector("h2").textContent,
+          card.querySelector("p").textContent
+        ].join(" ").toLowerCase();
+
+        const isMatch = text.includes(query);
+        card.style.display = isMatch ? "flex" : "none";
+        if (isMatch) visibleCount += 1;
+      });
+
+      counter.textContent = visibleCount === 1
+        ? "1 Interactive Game"
+        : `${visibleCount} Interactive Games`;
+      emptyState.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    searchInput.addEventListener("input", updateGames);
+  </script>
+</body>
+</html>
