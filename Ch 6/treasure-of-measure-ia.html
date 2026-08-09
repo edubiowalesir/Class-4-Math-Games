@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>The Treasure of Measure-ia | Class 4 Measuring Length Escape Room</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: radial-gradient(circle at 50% 0%, #3b2a5e 0%, #1a0f2e 70%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+    color: #f5e6c8;
+  }
+  .app {
+    width: 100%;
+    max-width: 900px;
+    background: linear-gradient(180deg, #2d1b4e 0%, #241541 100%);
+    border-radius: 26px;
+    box-shadow: 0 0 0 3px #d4af37, 0 20px 50px rgba(0,0,0,0.5);
+    padding: 22px 26px 30px;
+  }
+  header { text-align: center; margin-bottom: 6px; }
+  h1 {
+    margin: 0;
+    font-size: 1.9rem;
+    color: #f6c453;
+    text-shadow: 0 0 12px rgba(246,196,83,0.5);
+  }
+  .subtitle { margin: 6px 0 0; color: #cbb8e8; font-size: 0.95rem; }
+
+  .topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 18px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .progressDots { display: flex; gap: 8px; }
+  .dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #4a3874;
+    border: 2px solid #6b4fa0;
+  }
+  .dot.done { background: #f6c453; border-color: #d4af37; box-shadow: 0 0 8px #f6c453; }
+  .dot.current { background: #ff8c42; border-color: #ffb066; box-shadow: 0 0 10px #ff8c42; }
+
+  .timer {
+    font-weight: 800;
+    color: #f6c453;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+
+  .chest {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    color: #f6c453;
+  }
+  .gemIcon { font-size: 1.1rem; opacity: 0.25; }
+  .gemIcon.filled { opacity: 1; filter: drop-shadow(0 0 4px #f6c453); }
+
+  .chamberCard {
+    background: #f5e6c8;
+    color: #3b2a1e;
+    border-radius: 20px;
+    padding: 22px 22px 26px;
+    box-shadow: inset 0 0 0 3px #d4af37;
+  }
+  .chamberTitle {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #7a4a1e;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .storyText {
+    text-align: center;
+    font-size: 1rem;
+    color: #5c4630;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .tapeBox { overflow-x: auto; margin-bottom: 16px; }
+  .tapeInner { position: relative; height: 70px; width: 520px; margin: 0 auto; }
+  .tapeBar { position: absolute; top: 30px; height: 30px; background: #fff6cc; border: 2px solid #d4a017; border-radius: 6px; width: 100%; }
+  .tick { position: absolute; bottom: 0; width: 2px; background: #7a5b00; }
+  .tick.major { height: 20px; background: #4a3600; width: 2.5px; }
+  .tick.minor { height: 10px; }
+  .tickLabel { position: absolute; top: -14px; font-size: 0.65rem; font-weight: 700; color: #4a3600; transform: translateX(-50%); }
+  .arrow { position: absolute; top: -6px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 16px solid #c0392b; transform: translateX(-50%); }
+
+  .shapeStage { display: flex; justify-content: center; margin-bottom: 16px; }
+  .shapeGrid { display: grid; gap: 2px; }
+  .cell { width: 34px; height: 34px; background: #ecd9b0; border: 1px solid #c9ab6e; border-radius: 3px; }
+  .cell.filled { background: #d99c3a; border: 2px solid #7a4a1e; }
+
+  .starPath { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stone {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #ecd9b0;
+    border: 3px solid #c9ab6e;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 0.95rem;
+    color: #5c4630;
+  }
+  .stone.empty { background: #fff; border: 3px dashed #d99c3a; color: #d99c3a; }
+  .stone.filled { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+  .starTiles { display: flex; justify-content: center; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .starTile {
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: #6b4fa0;
+    color: #fff;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+  }
+  .starTile:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .promptText {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #3b2a1e;
+    margin-bottom: 14px;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .optBtn {
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 14px 8px;
+    border-radius: 12px;
+    border: 3px solid #c9ab6e;
+    background: #fffaf0;
+    cursor: pointer;
+    color: #3b2a1e;
+  }
+  .optBtn:active { transform: scale(0.97); }
+  .optBtn.correct { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+  .optBtn.wrong { background: #fed7d7; border-color: #e53e3e; color: #822727; }
+
+  .vaultInputRow {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .vaultInputRow input {
+    font-size: 1.3rem;
+    font-weight: 800;
+    width: 120px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    border: 3px solid #c9ab6e;
+  }
+  .vaultInputRow button {
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 12px 22px;
+    border-radius: 12px;
+    border: none;
+    background: #38a169;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .feedback {
+    text-align: center;
+    font-weight: 800;
+    min-height: 26px;
+    margin-top: 14px;
+  }
+  .feedback.correct { color: #2f855a; }
+  .feedback.wrong { color: #c53030; }
+
+  .finaleCard { text-align: center; }
+  .finaleCard h2 { color: #7a4a1e; font-size: 1.6rem; margin-bottom: 4px; }
+  .finaleCard .treasureEmoji { font-size: 3.5rem; margin: 10px 0; }
+  .finaleCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    background: #6b4fa0;
+    color: #fff;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🏺 The Treasure of Measure-ia</h1>
+    <p class="subtitle">Solve 5 measurement riddles to open the ancient vault!</p>
+  </header>
+
+  <div class="topBar">
+    <div class="progressDots" id="progressDots"></div>
+    <div class="timer">⏱️ <span id="timer">0:00</span></div>
+    <div class="chest" id="chest">Treasure: </div>
+  </div>
+
+  <div class="chamberCard" id="chamberCard"></div>
+</div>
+
+<script>
+  const chamberCard = document.getElementById('chamberCard');
+  const progressDots = document.getElementById('progressDots');
+  const chestEl = document.getElementById('chest');
+  const timerEl = document.getElementById('timer');
+
+  const TOTAL_CHAMBERS = 5;
+  let chamberIdx = 0;
+  let gems = 0;
+  let startTime = null;
+  let timerInterval = null;
+  let current = null;
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function collectDistractors(correct, makeCandidate, count, maxTries) {
+    const set = new Set();
+    let tries = 0;
+    while (set.size < count && tries < maxTries) {
+      const c = makeCandidate();
+      if (c && c !== correct) set.add(c);
+      tries++;
+    }
+    return Array.from(set);
+  }
+
+  function updateTopBar() {
+    progressDots.innerHTML = '';
+    for (let i = 0; i < TOTAL_CHAMBERS; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i < chamberIdx ? ' done' : i === chamberIdx ? ' current' : '');
+      progressDots.appendChild(d);
+    }
+    let gemStr = 'Treasure: ';
+    for (let i = 0; i < TOTAL_CHAMBERS; i++) {
+      gemStr += (i < gems) ? '<span class="gemIcon filled">💎</span>' : '<span class="gemIcon">💎</span>';
+    }
+    chestEl.innerHTML = gemStr;
+  }
+
+  function startTimer() {
+    startTime = Date.now();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - startTime) / 1000);
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    }, 500);
+  }
+
+  function onChamberSolved() {
+    gems++;
+    updateTopBar();
+    setTimeout(() => {
+      chamberIdx++;
+      if (chamberIdx >= TOTAL_CHAMBERS) {
+        renderFinale();
+      } else {
+        renderChamber();
+      }
+    }, 1300);
+  }
+
+  function buildOptions(container, options, correct, onWrongExtra) {
+    container.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'optBtn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => {
+        if (opt === correct) {
+          Array.from(container.children).forEach(b => { b.disabled = true; if (b.textContent === correct) b.classList.add('correct'); });
+          showFeedback('✨ Correct! The path glows and unlocks...', 'correct');
+          onChamberSolved();
+        } else {
+          btn.classList.add('wrong');
+          showFeedback('Not quite — look closely and try again!', 'wrong');
+          setTimeout(() => btn.classList.remove('wrong'), 500);
+          if (onWrongExtra) onWrongExtra();
+        }
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function showFeedback(msg, cls) {
+    const fb = document.getElementById('chamberFeedback');
+    if (fb) { fb.textContent = msg; fb.className = 'feedback ' + cls; }
+  }
+
+  // ---------- Chamber 1: The Scroll Room (tape reading) ----------
+  function renderChamber1() {
+    const V = randInt(4, 96);
+    const correct = V + ' cm';
+    const makeCandidate = () => {
+      const kind = randInt(0, 2);
+      if (kind === 0) return (V / 10).toFixed(1) + ' m';
+      if (kind === 1) return clamp(V + randInt(3, 12) * (Math.random() < 0.5 ? -1 : 1), 1, 99) + ' cm';
+      return V + ' m';
+    };
+    const options = shuffle([correct, ...collectDistractors(correct, makeCandidate, 3, 30)]);
+
+    chamberCard.innerHTML =
+      '<div class="chamberTitle">📜 Chamber 1 — The Scroll Room</div>' +
+      '<div class="storyText">A dusty scroll shows an old measuring tape. Where does the golden arrow point?</div>' +
+      '<div class="tapeBox"><div class="tapeInner" id="tapeInner"></div></div>' +
+      '<div class="promptText">Read the mark the arrow points to.</div>' +
+      '<div class="options" id="optsA"></div>' +
+      '<div class="feedback" id="chamberFeedback"></div>';
+
+    const scale = 5;
+    const inner = document.getElementById('tapeInner');
+    const bar = document.createElement('div'); bar.className = 'tapeBar'; inner.appendChild(bar);
+    for (let i = 0; i <= 100; i++) {
+      const tick = document.createElement('div');
+      const major = i % 10 === 0;
+      tick.className = 'tick ' + (major ? 'major' : 'minor');
+      tick.style.left = (i * scale) + 'px';
+      tick.style.top = major ? '10px' : '20px';
+      inner.appendChild(tick);
+      if (major) {
+        const lbl = document.createElement('div');
+        lbl.className = 'tickLabel';
+        lbl.style.left = (i * scale) + 'px';
+        lbl.textContent = i;
+        inner.appendChild(lbl);
+      }
+    }
+    const arrow = document.createElement('div');
+    arrow.className = 'arrow';
+    arrow.style.left = (V * scale) + 'px';
+    inner.appendChild(arrow);
+
+    buildOptions(document.getElementById('optsA'), options, correct);
+  }
+
+  // ---------- Chamber 2: The Rope Bridge (m + cm -> cm) ----------
+  function renderChamber2() {
+    const X = randInt(1, 9);
+    const Y = randInt(1, 99);
+    const val = X * 100 + Y;
+    const correct = val + ' cm';
+    const makeCandidate = () => {
+      const kind = randInt(0, 2);
+      if (kind === 0) return (X * 10 + Y) + ' cm';
+      if (kind === 1) return (X + Y) + ' cm';
+      return clamp(val + randInt(3, 15) * (Math.random() < 0.5 ? -1 : 1), 1, 999) + ' cm';
+    };
+    const options = shuffle([correct, ...collectDistractors(correct, makeCandidate, 3, 30)]);
+
+    chamberCard.innerHTML =
+      '<div class="chamberTitle">🌉 Chamber 2 — The Rope Bridge</div>' +
+      '<div class="storyText">A broken bridge needs a rope exactly <b>' + X + ' m ' + Y + ' cm</b> long. The guardian only understands centimetres!</div>' +
+      '<div class="promptText">How many centimetres of rope do you need?</div>' +
+      '<div class="options" id="optsB"></div>' +
+      '<div class="feedback" id="chamberFeedback"></div>';
+
+    buildOptions(document.getElementById('optsB'), options, correct);
+  }
+
+  // ---------- Chamber 3: The Garden Maze (perimeter) ----------
+  function rect(w, h) { const c = []; for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) c.push([x, y]); return c; }
+  const MAZE_SHAPES = [
+    rect(3, 2), rect(4, 2), rect(3, 3), rect(2, 4),
+    [[0,0],[1,0],[2,0],[0,1],[0,2]],
+    [[1,0],[0,1],[1,1],[2,1],[1,2]],
+    [[0,0],[0,1],[1,1],[1,2],[2,2]]
+  ];
+  function calcPerimeter(cells) {
+    const set = new Set(cells.map(([x, y]) => x + ',' + y));
+    let p = 0;
+    cells.forEach(([x, y]) => {
+      [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].forEach(([nx, ny]) => { if (!set.has(nx + ',' + ny)) p++; });
+    });
+    return p;
+  }
+  function renderChamber3() {
+    const cells = MAZE_SHAPES[randInt(0, MAZE_SHAPES.length - 1)];
+    const P = calcPerimeter(cells);
+    const area = cells.length;
+    const correct = P + ' cm';
+    const makeCandidate = () => {
+      const kind = randInt(0, 2);
+      if (kind === 0) return clamp(P + 2, 2, 60) + ' cm';
+      if (kind === 1) return clamp(P - 2, 2, 60) + ' cm';
+      return area + ' cm';
+    };
+    const options = shuffle([correct, ...collectDistractors(correct, makeCandidate, 3, 30)]);
+
+    chamberCard.innerHTML =
+      '<div class="chamberTitle">🌿 Chamber 3 — The Garden Maze</div>' +
+      '<div class="storyText">To pass, you must fence the whole garden plot below. Each square = 1 cm.</div>' +
+      '<div class="shapeStage"><div class="shapeGrid" id="mazeGrid"></div></div>' +
+      '<div class="promptText">How much fencing (perimeter) is needed?</div>' +
+      '<div class="options" id="optsC"></div>' +
+      '<div class="feedback" id="chamberFeedback"></div>';
+
+    const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const pad = 1;
+    const cols = (maxX - minX + 1) + 2 * pad, rows = (maxY - minY + 1) + 2 * pad;
+    const set = new Set(cells.map(([x, y]) => (x - minX + pad) + ',' + (y - minY + pad)));
+    const grid = document.getElementById('mazeGrid');
+    grid.style.gridTemplateColumns = 'repeat(' + cols + ', 34px)';
+    grid.style.gridTemplateRows = 'repeat(' + rows + ', 34px)';
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const div = document.createElement('div');
+        div.className = 'cell' + (set.has(c + ',' + r) ? ' filled' : '');
+        grid.appendChild(div);
+      }
+    }
+
+    buildOptions(document.getElementById('optsC'), options, correct);
+  }
+
+  // ---------- Chamber 4: The Star Path (number line, tap-to-place) ----------
+  function renderChamber4() {
+    const stones = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    const hiddenIdx = randInt(1, stones.length - 2);
+    const correctVal = stones[hiddenIdx];
+
+    chamberCard.innerHTML =
+      '<div class="chamberTitle">✨ Chamber 4 — The Star Path</div>' +
+      '<div class="storyText">One stepping stone has lost its number. Tap the star with the correct value to light the path.</div>' +
+      '<div class="starPath" id="stonesRow"></div>' +
+      '<div class="starTiles" id="starTiles"></div>' +
+      '<div class="feedback" id="chamberFeedback"></div>';
+
+    const stonesRow = document.getElementById('stonesRow');
+    stones.forEach((v, i) => {
+      const stone = document.createElement('div');
+      stone.id = 'stone' + i;
+      stone.className = 'stone' + (i === hiddenIdx ? ' empty' : '');
+      stone.textContent = i === hiddenIdx ? '?' : v;
+      stonesRow.appendChild(stone);
+    });
+
+    const decoys = collectDistractors(correctVal, () => {
+      const off = (randInt(1, 2)) * 10 * (Math.random() < 0.5 ? -1 : 1);
+      return clamp(correctVal + off, 0, 100);
+    }, 3, 20);
+    const tileValues = shuffle([correctVal, ...decoys]);
+
+    const starTiles = document.getElementById('starTiles');
+    tileValues.forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'starTile';
+      btn.textContent = '⭐ ' + v;
+      btn.addEventListener('click', () => {
+        if (v === correctVal) {
+          document.getElementById('stone' + hiddenIdx).textContent = v;
+          document.getElementById('stone' + hiddenIdx).className = 'stone filled';
+          Array.from(starTiles.children).forEach(b => b.disabled = true);
+          showFeedback('✨ The path lights up and glows golden!', 'correct');
+          onChamberSolved();
+        } else {
+          btn.disabled = true;
+          showFeedback('That star fades — try another!', 'wrong');
+        }
+      });
+      starTiles.appendChild(btn);
+    });
+  }
+
+  // ---------- Chamber 5: The Final Vault (type-in code) ----------
+  function renderChamber5() {
+    const mA = randInt(1, 4);
+    const cmB = randInt(20, 250);
+    const correct = mA * 100 + cmB;
+
+    chamberCard.innerHTML =
+      '<div class="chamberTitle">🗝️ Chamber 5 — The Final Vault</div>' +
+      '<div class="storyText">Two ropes lie before the vault: one is <b>' + mA + ' m</b> long, the other is <b>' + cmB + ' cm</b> long. ' +
+      'Join them together and type the total length <b>in centimetres</b> to crack the vault code!</div>' +
+      '<div class="vaultInputRow">' +
+        '<input type="number" id="vaultInput" placeholder="? cm" />' +
+        '<button id="vaultBtn">🔓 Unlock</button>' +
+      '</div>' +
+      '<div class="feedback" id="chamberFeedback"></div>';
+
+    document.getElementById('vaultBtn').addEventListener('click', () => {
+      const val = parseInt(document.getElementById('vaultInput').value, 10);
+      if (val === correct) {
+        showFeedback('🎉 The vault creaks open! You found the code: ' + correct + ' cm!', 'correct');
+        document.getElementById('vaultBtn').disabled = true;
+        onChamberSolved();
+      } else {
+        showFeedback('The vault stays shut. Remember: ' + mA + ' m = ' + (mA*100) + ' cm, then add ' + cmB + ' cm. Try again!', 'wrong');
+      }
+    });
+    document.getElementById('vaultInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('vaultBtn').click();
+    });
+  }
+
+  function renderChamber() {
+    updateTopBar();
+    if (chamberIdx === 0) renderChamber1();
+    else if (chamberIdx === 1) renderChamber2();
+    else if (chamberIdx === 2) renderChamber3();
+    else if (chamberIdx === 3) renderChamber4();
+    else if (chamberIdx === 4) renderChamber5();
+  }
+
+  function renderFinale() {
+    updateTopBar();
+    const secs = Math.floor((Date.now() - startTime) / 1000);
+    clearInterval(timerInterval);
+    const m = Math.floor(secs / 60), s = secs % 60;
+    chamberCard.innerHTML =
+      '<div class="finaleCard">' +
+        '<div class="treasureEmoji">🏆💎🏺</div>' +
+        '<h2>You escaped with the Treasure of Measure-ia!</h2>' +
+        '<p>All 5 chambers conquered in <b>' + m + ':' + (s < 10 ? '0' : '') + s + '</b> — you truly are a Measurement Master!</p>' +
+        '<button id="playAgainBtn">🔁 Play Again</button>' +
+      '</div>';
+    document.getElementById('playAgainBtn').addEventListener('click', newGame);
+  }
+
+  function newGame() {
+    chamberIdx = 0;
+    gems = 0;
+    startTimer();
+    renderChamber();
+  }
+
+  newGame();
+</script>
+
+</body>
+</html>

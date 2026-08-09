@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Measure It! — Virtual Ruler | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #e8f7ff 0%, #fef9e7 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 980px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 28px 28px;
+  }
+  header { text-align: center; margin-bottom: 6px; }
+  h1 { margin: 0; font-size: 2.1rem; color: #2b6cb0; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1.05rem; }
+
+  .scoreboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f0f7ff;
+    border-radius: 14px;
+    padding: 10px 22px;
+    margin: 18px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2b6cb0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .scoreboard span { color: #d97706; }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: repeating-linear-gradient(90deg, #fbfdff, #fbfdff 39px, #eef4fb 40px);
+    border: 3px dashed #bcd8f5;
+    border-radius: 18px;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  .objectLabel {
+    position: absolute;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #444;
+    white-space: nowrap;
+  }
+  .objectEl {
+    position: absolute;
+    border-radius: 8px;
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), 0 3px 5px rgba(0,0,0,0.15);
+    border: 2px solid rgba(0,0,0,0.15);
+  }
+  .objectEdge {
+    position: absolute;
+    top: -6px;
+    bottom: -6px;
+    width: 3px;
+    background: #e53e3e;
+  }
+
+  .ruler {
+    position: absolute;
+    height: 64px;
+    background: #fff6cc;
+    border: 2px solid #d4a017;
+    border-radius: 6px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    cursor: grab;
+    touch-action: none;
+  }
+  .ruler:active { cursor: grabbing; }
+  .ruler .zeroFlag {
+    position: absolute;
+    left: -2px;
+    top: -26px;
+    background: #d4a017;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .tick {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background: #7a5b00;
+  }
+  .tick.major { height: 34px; background: #4a3600; width: 2.5px; }
+  .tick.minor { height: 18px; }
+  .tickLabel {
+    position: absolute;
+    bottom: 36px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #4a3600;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .guideLine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    border-left: 2px dashed #38a169;
+    display: none;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .controls label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  #answerInput {
+    width: 80px;
+    font-size: 1.2rem;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 2px solid #bcd8f5;
+    text-align: center;
+    margin-left: 6px;
+  }
+  button {
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  button:active { transform: scale(0.96); }
+  #checkBtn { background: #38a169; color: #fff; }
+  #hintBtn { background: #ecc94b; color: #4a3600; }
+  #nextBtn { background: #3182ce; color: #fff; }
+  #resetRulerBtn { background: #a0aec0; color: #fff; }
+
+  .feedback {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    min-height: 34px;
+  }
+  .feedback.correct { color: #2f855a; }
+  .feedback.wrong { color: #c53030; }
+  .feedback.info { color: #b7791f; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard h2 { color: #2b6cb0; margin-top: 0; }
+  .overlayCard button { margin-top: 14px; background: #3182ce; color: #fff; }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.5rem; }
+    .stage { height: 250px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>📏 Measure It!</h1>
+    <p class="subtitle">Drag the yellow measuring tape so <b>0</b> touches the start of the object. Then read the length and type it below!</p>
+  </header>
+
+  <div class="scoreboard">
+    <div>Object <span id="objIndex">1</span> of <span id="objTotal">6</span> — <span id="objName">Pencil</span></div>
+    <div>Score: <span id="score">0</span> / <span id="scoreTotal">6</span></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="objectLabel" id="objectLabel"></div>
+    <div class="objectEl" id="objectEl"></div>
+    <div class="objectEdge" id="objectEdge"></div>
+    <div class="guideLine" id="guideLine"></div>
+    <div class="ruler" id="ruler">
+      <div class="zeroFlag">0 cm here 👉</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <label>My measurement:
+      <input type="number" id="answerInput" min="0" max="30" placeholder="?" />
+      cm
+    </label>
+    <button id="checkBtn">✅ Check</button>
+    <button id="hintBtn">🔍 Hint</button>
+    <button id="resetRulerBtn">↩️ Reset Tape</button>
+    <button id="nextBtn">➡️ Next</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <h2>🎉 Well Done!</h2>
+    <p id="overlayText">You scored 0 / 6</p>
+    <button id="playAgainBtn">🔁 Play Again</button>
+  </div>
+</div>
+
+<script>
+  const SCALE = 26;            // px per cm
+  const RULER_CM = 20;         // ruler length in cm
+  const OBJECT_LEFT = 90;      // fixed x position (px) of each object's left edge
+  const OBJECT_TOP = 55;       // fixed y position (px) of the object
+
+  const OBJECTS = [
+    { name: 'Pencil',      emoji: '✏️', length: 12, color: '#f6c453' },
+    { name: 'Crayon',      emoji: '🖍️', length: 8,  color: '#ff9248' },
+    { name: 'Eraser',      emoji: '🧊', length: 4,  color: '#ff9fb2' },
+    { name: 'Chalk Stick', emoji: '⚪', length: 6,  color: '#f5f5f5' },
+    { name: 'Paperclip',   emoji: '📎', length: 3,  color: '#cfd8dc' },
+    { name: 'Matchstick',  emoji: '🔥', length: 5,  color: '#c98a4b' }
+  ];
+
+  const stage = document.getElementById('stage');
+  const ruler = document.getElementById('ruler');
+  const objectEl = document.getElementById('objectEl');
+  const objectLabel = document.getElementById('objectLabel');
+  const objectEdge = document.getElementById('objectEdge');
+  const guideLine = document.getElementById('guideLine');
+  const answerInput = document.getElementById('answerInput');
+  const feedback = document.getElementById('feedback');
+  const objIndexEl = document.getElementById('objIndex');
+  const objNameEl = document.getElementById('objName');
+  const scoreEl = document.getElementById('score');
+  const overlay = document.getElementById('overlay');
+  const overlayText = document.getElementById('overlayText');
+
+  document.getElementById('objTotal').textContent = OBJECTS.length;
+  document.getElementById('scoreTotal').textContent = OBJECTS.length;
+
+  let order = [];
+  let pos = 0;
+  let score = 0;
+  let solved = [];
+  let rulerLeft = 0, rulerTop = 0;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildRulerTicks() {
+    ruler.querySelectorAll('.tick, .tickLabel').forEach(el => el.remove());
+    ruler.style.width = (RULER_CM * SCALE) + 'px';
+    for (let i = 0; i <= RULER_CM; i++) {
+      const tick = document.createElement('div');
+      tick.className = 'tick ' + (i % 5 === 0 ? 'major' : 'minor');
+      tick.style.left = (i * SCALE) + 'px';
+      ruler.appendChild(tick);
+      if (i % 5 === 0) {
+        const label = document.createElement('div');
+        label.className = 'tickLabel';
+        label.style.left = (i * SCALE) + 'px';
+        label.textContent = i;
+        ruler.appendChild(label);
+      }
+    }
+  }
+
+  function defaultRulerPos() {
+    rulerLeft = 20;
+    rulerTop = 190;
+    ruler.style.left = rulerLeft + 'px';
+    ruler.style.top = rulerTop + 'px';
+  }
+
+  function loadObject() {
+    const obj = OBJECTS[order[pos]];
+    objIndexEl.textContent = pos + 1;
+    objNameEl.textContent = obj.name;
+
+    const widthPx = obj.length * SCALE;
+    objectEl.style.left = OBJECT_LEFT + 'px';
+    objectEl.style.top = OBJECT_TOP + 'px';
+    objectEl.style.width = widthPx + 'px';
+    objectEl.style.height = '26px';
+    objectEl.style.background = obj.color;
+
+    objectEdge.style.left = (OBJECT_LEFT + widthPx) + 'px';
+    objectEdge.style.top = OBJECT_TOP + 'px';
+    objectEdge.style.height = '26px';
+
+    objectLabel.style.left = OBJECT_LEFT + 'px';
+    objectLabel.style.top = (OBJECT_TOP - 24) + 'px';
+    objectLabel.textContent = obj.emoji + ' ' + obj.name;
+
+    guideLine.style.display = 'none';
+    answerInput.value = '';
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    defaultRulerPos();
+  }
+
+  function newRound() {
+    order = shuffle(OBJECTS.map((_, i) => i));
+    pos = 0;
+    score = 0;
+    solved = new Array(OBJECTS.length).fill(false);
+    scoreEl.textContent = score;
+    overlay.classList.remove('show');
+    loadObject();
+  }
+
+  // --- Dragging (mouse + touch via Pointer Events) ---
+  let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+  ruler.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    ruler.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    startLeft = rulerLeft; startTop = rulerTop;
+  });
+
+  ruler.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const stageRect = stage.getBoundingClientRect();
+    let newLeft = startLeft + (e.clientX - startX);
+    let newTop = startTop + (e.clientY - startY);
+
+    newLeft = Math.max(-20, Math.min(newLeft, stageRect.width - 40));
+    newTop = Math.max(0, Math.min(newTop, stageRect.height - 64));
+
+    // snap ruler's 0 mark to the object's left edge when close
+    if (Math.abs(newLeft - OBJECT_LEFT) < 10) newLeft = OBJECT_LEFT;
+
+    rulerLeft = newLeft; rulerTop = newTop;
+    ruler.style.left = rulerLeft + 'px';
+    ruler.style.top = rulerTop + 'px';
+
+    // guide line at the object's right edge if ruler is near enough vertically to be useful
+    const obj = OBJECTS[order[pos]];
+    const objRightPx = OBJECT_LEFT + obj.length * SCALE;
+    if (rulerTop < OBJECT_TOP + 90 && rulerTop > OBJECT_TOP - 90) {
+      guideLine.style.display = 'block';
+      guideLine.style.left = objRightPx + 'px';
+      guideLine.style.top = Math.min(rulerTop, OBJECT_TOP) + 'px';
+      guideLine.style.height = (Math.max(rulerTop + 64, OBJECT_TOP + 26) - Math.min(rulerTop, OBJECT_TOP)) + 'px';
+    } else {
+      guideLine.style.display = 'none';
+    }
+  });
+
+  ['pointerup', 'pointercancel'].forEach(evt =>
+    ruler.addEventListener(evt, () => { dragging = false; })
+  );
+
+  // --- Buttons ---
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    const obj = OBJECTS[order[pos]];
+    const val = parseFloat(answerInput.value);
+    if (isNaN(val)) {
+      feedback.textContent = 'Type your measurement first!';
+      feedback.className = 'feedback info';
+      return;
+    }
+    if (val === obj.length) {
+      feedback.textContent = '🎉 Correct! The ' + obj.name.toLowerCase() + ' is exactly ' + obj.length + ' cm.';
+      feedback.className = 'feedback correct';
+      if (!solved[order[pos]]) { solved[order[pos]] = true; score++; scoreEl.textContent = score; }
+    } else if (Math.abs(val - obj.length) === 1) {
+      feedback.textContent = 'Almost! Check the tape\'s 0 mark carefully. It is actually ' + obj.length + ' cm.';
+      feedback.className = 'feedback wrong';
+    } else {
+      feedback.textContent = 'Not quite. Line up 0 with the start of the object, then read the other end. It is ' + obj.length + ' cm.';
+      feedback.className = 'feedback wrong';
+    }
+  });
+
+  document.getElementById('hintBtn').addEventListener('click', () => {
+    rulerLeft = OBJECT_LEFT;
+    rulerTop = OBJECT_TOP + 30;
+    ruler.style.left = rulerLeft + 'px';
+    ruler.style.top = rulerTop + 'px';
+    feedback.textContent = 'The tape is now lined up at 0. Now read the number at the other end of the object!';
+    feedback.className = 'feedback info';
+    const obj = OBJECTS[order[pos]];
+    const objRightPx = OBJECT_LEFT + obj.length * SCALE;
+    guideLine.style.display = 'block';
+    guideLine.style.left = objRightPx + 'px';
+    guideLine.style.top = OBJECT_TOP + 'px';
+    guideLine.style.height = '100px';
+  });
+
+  document.getElementById('resetRulerBtn').addEventListener('click', defaultRulerPos);
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (pos < order.length - 1) {
+      pos++;
+      loadObject();
+    } else {
+      overlayText.textContent = 'You scored ' + score + ' / ' + OBJECTS.length + '!';
+      overlay.classList.add('show');
+    }
+  });
+
+  document.getElementById('playAgainBtn').addEventListener('click', newRound);
+
+  buildRulerTicks();
+  newRound();
+</script>
+
+</body>
+</html>

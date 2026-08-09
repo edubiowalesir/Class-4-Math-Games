@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Convert & Conquer — Buzzer Round | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #fff8e1 0%, #e8f7ff 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 1000px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 28px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 2rem; color: #b7791f; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1rem; }
+
+  .teamRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 16px 0 6px;
+    flex-wrap: wrap;
+  }
+  .teamBox {
+    flex: 1;
+    min-width: 220px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .teamBox.A { background: #fff5f5; border: 3px solid #e53e3e; }
+  .teamBox.B { background: #ebf8ff; border: 3px solid #3182ce; }
+  .teamBox input {
+    border: none;
+    background: transparent;
+    font-weight: 800;
+    font-size: 1rem;
+    width: 100%;
+    outline: none;
+  }
+  .teamBox.A input { color: #c53030; }
+  .teamBox.B input { color: #2b6cb0; }
+  .scoreNum { font-size: 1.4rem; margin-left: auto; }
+
+  .qCount {
+    text-align: center;
+    color: #718096;
+    font-weight: 700;
+    margin: 10px 0 4px;
+  }
+
+  .questionBox {
+    background: #fffaf0;
+    border: 3px solid #ecc94b;
+    border-radius: 18px;
+    padding: 26px 20px;
+    text-align: center;
+    margin: 10px 0 14px;
+  }
+  .questionText {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #4a3600;
+    letter-spacing: 0.5px;
+  }
+
+  .timerTrack {
+    width: 100%;
+    height: 14px;
+    background: #edf2f7;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 14px 0 18px;
+  }
+  .timerBar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #f6ad55, #ecc94b);
+  }
+
+  .buzzRow {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .buzzBtn {
+    flex: 1;
+    min-width: 220px;
+    max-width: 340px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    padding: 26px 10px;
+    border-radius: 18px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    transition: transform 0.1s ease, opacity 0.2s;
+  }
+  .buzzBtn:active { transform: scale(0.96); }
+  .buzzBtn.A { background: linear-gradient(160deg, #f56565, #c53030); }
+  .buzzBtn.B { background: linear-gradient(160deg, #4299e1, #2b6cb0); }
+  .buzzBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .options {
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 680px;
+    margin: 12px auto 0;
+  }
+  .optBtn {
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 15px 10px;
+    border-radius: 14px;
+    border: 3px solid #cbd5e0;
+    background: #f7fafc;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s;
+  }
+  .optBtn:active { transform: scale(0.97); }
+  .optBtn.correct { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+  .optBtn.wrong { background: #fed7d7; border-color: #e53e3e; color: #822727; }
+  .optBtn:disabled { cursor: not-allowed; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    min-height: 30px;
+    margin-top: 16px;
+  }
+  .feedback.correct { color: #2f855a; }
+  .feedback.wrong { color: #c53030; }
+  .feedback.info { color: #b7791f; }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  button.ctrl {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #a0aec0;
+    color: #fff;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard h2 { margin-top: 0; font-size: 1.8rem; }
+  .overlayCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #3182ce;
+    color: #fff;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.4rem; }
+    .questionText { font-size: 1.3rem; }
+    .options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>⚡ Convert &amp; Conquer</h1>
+    <p class="subtitle">Solve the conversion, then buzz in first — but you still have to answer it right!</p>
+  </header>
+
+  <div class="teamRow">
+    <div class="teamBox A">🚩 <input id="teamAName" value="Team A" maxlength="16" /> <span class="scoreNum" id="scoreA">0</span></div>
+    <div class="teamBox B">🚩 <input id="teamBName" value="Team B" maxlength="16" /> <span class="scoreNum" id="scoreB">0</span></div>
+  </div>
+
+  <div class="qCount">Question <span id="qNum">1</span> · First to <span id="winScoreLabel">5</span> points wins</div>
+
+  <div class="questionBox">
+    <div class="questionText" id="questionText">Loading…</div>
+  </div>
+
+  <div class="timerTrack"><div class="timerBar" id="timerBar"></div></div>
+
+  <div class="buzzRow">
+    <button class="buzzBtn A" id="buzzA">🔔 BUZZ — Team A</button>
+    <button class="buzzBtn B" id="buzzB">🔔 BUZZ — Team B</button>
+  </div>
+
+  <div class="options" id="options"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="controls">
+    <button class="ctrl" id="resetBtn">🔄 New Match</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <h2 id="overlayTitle">🎉 Team A Wins!</h2>
+    <p id="overlayText">First to convert their way to victory!</p>
+    <button id="playAgainBtn">🔁 New Match</button>
+  </div>
+</div>
+
+<script>
+  const WIN_SCORE = 5;
+  const BUZZ_TIME = 8000;   // ms window to buzz in
+  const ANSWER_TIME = 7000; // ms window to answer once buzzed / stealing
+
+  const teamAInput = document.getElementById('teamAName');
+  const teamBInput = document.getElementById('teamBName');
+  const scoreAEl = document.getElementById('scoreA');
+  const scoreBEl = document.getElementById('scoreB');
+  const qNumEl = document.getElementById('qNum');
+  const questionText = document.getElementById('questionText');
+  const timerBar = document.getElementById('timerBar');
+  const buzzA = document.getElementById('buzzA');
+  const buzzB = document.getElementById('buzzB');
+  const optionsEl = document.getElementById('options');
+  const feedback = document.getElementById('feedback');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+
+  document.getElementById('winScoreLabel').textContent = WIN_SCORE;
+
+  let scoreA = 0, scoreB = 0;
+  let qCount = 1;
+  let phase = 'waiting'; // waiting -> answering -> steal -> resolved
+  let buzzTeam = null;
+  let stealUsed = false;
+  let activeTimeoutId = null;
+  let current = null;
+
+  function teamName(t) { return t === 'A' ? (teamAInput.value.trim() || 'Team A') : (teamBInput.value.trim() || 'Team B'); }
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function collectDistractors(correct, makeCandidate, count, maxTries) {
+    const set = new Set();
+    let tries = 0;
+    while (set.size < count && tries < maxTries) {
+      const c = makeCandidate();
+      if (c && c !== correct) set.add(c);
+      tries++;
+    }
+    return Array.from(set);
+  }
+
+  function generateQuestion() {
+    const type = ['A', 'B', 'C', 'D'][randInt(0, 3)];
+    let prompt, correct, makeCandidate;
+
+    if (type === 'A') {
+      const X = randInt(1, 9);
+      const val = X * 100;
+      prompt = X + ' m = ___ cm';
+      correct = val + ' cm';
+      makeCandidate = () => {
+        const kind = randInt(0, 2);
+        if (kind === 0) return (X * 10) + ' cm';
+        if (kind === 1) return X + ' cm';
+        const slip = val + randInt(1, 9) * 10 * (Math.random() < 0.5 ? -1 : 1);
+        return clamp(slip, 10, 999) + ' cm';
+      };
+    } else if (type === 'B') {
+      const X = randInt(1, 9);
+      const Y = X * 100;
+      prompt = Y + ' cm = ___ m';
+      correct = X + ' m';
+      makeCandidate = () => {
+        const kind = randInt(0, 2);
+        if (kind === 0) return (X * 10) + ' m';
+        if (kind === 1) return Y + ' m';
+        const off = randInt(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+        return clamp(X + off, 1, 20) + ' m';
+      };
+    } else if (type === 'C') {
+      const X = randInt(1, 9);
+      const Y = randInt(1, 99);
+      const val = X * 100 + Y;
+      prompt = X + ' m ' + Y + ' cm = ___ cm';
+      correct = val + ' cm';
+      makeCandidate = () => {
+        const kind = randInt(0, 2);
+        if (kind === 0) return (X * 10 + Y) + ' cm';
+        if (kind === 1) return (X + Y) + ' cm';
+        const slip = val + randInt(3, 15) * (Math.random() < 0.5 ? -1 : 1);
+        return clamp(slip, 1, 999) + ' cm';
+      };
+    } else {
+      const X = randInt(1, 9);
+      const Y = randInt(1, 99);
+      const Z = X * 100 + Y;
+      prompt = Z + ' cm = ___';
+      correct = X + ' m ' + Y + ' cm';
+      makeCandidate = () => {
+        const kind = randInt(0, 2);
+        if (kind === 0) return (X + 1) + ' m ' + Y + ' cm';
+        if (kind === 1) {
+          let Y2 = clamp(Y + randInt(5, 20) * (Math.random() < 0.5 ? -1 : 1), 1, 99);
+          return X + ' m ' + Y2 + ' cm';
+        }
+        return Z + ' m';
+      };
+    }
+
+    const distractors = collectDistractors(correct, makeCandidate, 3, 40);
+    const options = shuffle([correct, ...distractors]);
+    return { prompt, correct, options };
+  }
+
+  function startTimerBar(duration) {
+    timerBar.style.transition = 'none';
+    timerBar.style.width = '100%';
+    void timerBar.offsetWidth; // force reflow
+    timerBar.style.transition = 'width ' + (duration / 1000) + 's linear';
+    timerBar.style.width = '0%';
+  }
+
+  function disableBuzzers() { buzzA.disabled = true; buzzB.disabled = true; }
+  function enableBuzzers() { buzzA.disabled = false; buzzB.disabled = false; }
+  function disableAllOptions() { Array.from(optionsEl.children).forEach(b => b.disabled = true); }
+  function revealCorrect() {
+    Array.from(optionsEl.children).forEach(b => {
+      if (b.textContent === current.correct) b.classList.add('correct');
+    });
+  }
+
+  function addScore(team, n) {
+    if (team === 'A') { scoreA += n; scoreAEl.textContent = scoreA; }
+    else { scoreB += n; scoreBEl.textContent = scoreB; }
+  }
+
+  function newRound() {
+    clearTimeout(activeTimeoutId);
+    current = generateQuestion();
+    questionText.textContent = current.prompt;
+    optionsEl.style.display = 'none';
+    optionsEl.innerHTML = '';
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    qNumEl.textContent = qCount;
+    phase = 'waiting';
+    buzzTeam = null;
+    stealUsed = false;
+    enableBuzzers();
+    startTimerBar(BUZZ_TIME);
+    activeTimeoutId = setTimeout(onNoBuzz, BUZZ_TIME);
+  }
+
+  function onNoBuzz() {
+    if (phase !== 'waiting') return;
+    phase = 'resolved';
+    disableBuzzers();
+    feedback.textContent = "⏰ Time's up! No one buzzed in. The answer was " + current.correct + '.';
+    feedback.className = 'feedback wrong';
+    afterRoundResolved();
+  }
+
+  function renderOptions() {
+    optionsEl.style.display = 'grid';
+    optionsEl.innerHTML = '';
+    current.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'optBtn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => attemptAnswer(opt, btn));
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function onBuzz(team) {
+    if (phase !== 'waiting') return;
+    clearTimeout(activeTimeoutId);
+    buzzTeam = team;
+    phase = 'answering';
+    disableBuzzers();
+    renderOptions();
+    feedback.textContent = '🔔 ' + teamName(team) + ' buzzed in first! Pick the right answer.';
+    feedback.className = 'feedback info';
+    startTimerBar(ANSWER_TIME);
+    activeTimeoutId = setTimeout(forfeit, ANSWER_TIME);
+  }
+
+  function attemptAnswer(opt, btn) {
+    if (phase !== 'answering' && phase !== 'steal') return;
+    const team = phase === 'answering' ? buzzTeam : (buzzTeam === 'A' ? 'B' : 'A');
+    if (opt === current.correct) {
+      clearTimeout(activeTimeoutId);
+      btn.classList.add('correct');
+      disableAllOptions();
+      addScore(team, 1);
+      feedback.textContent = '✅ Correct! ' + teamName(team) + ' scores a point!';
+      feedback.className = 'feedback correct';
+      phase = 'resolved';
+      afterRoundResolved();
+    } else {
+      btn.disabled = true;
+      btn.classList.add('wrong');
+      forfeit();
+    }
+  }
+
+  function forfeit() {
+    if (phase === 'resolved') return;
+    if (phase === 'answering' && !stealUsed) {
+      stealUsed = true;
+      phase = 'steal';
+      const stealTeam = buzzTeam === 'A' ? 'B' : 'A';
+      clearTimeout(activeTimeoutId);
+      feedback.textContent = '❌ Not quite! ' + teamName(stealTeam) + ', steal the point — pick the right answer!';
+      feedback.className = 'feedback wrong';
+      startTimerBar(ANSWER_TIME);
+      activeTimeoutId = setTimeout(forfeit, ANSWER_TIME);
+    } else {
+      phase = 'resolved';
+      clearTimeout(activeTimeoutId);
+      revealCorrect();
+      disableAllOptions();
+      feedback.textContent = 'No one scores this round. The answer was ' + current.correct + '.';
+      feedback.className = 'feedback wrong';
+      afterRoundResolved();
+    }
+  }
+
+  function afterRoundResolved() {
+    setTimeout(checkWinOrNext, 1700);
+  }
+
+  function checkWinOrNext() {
+    if (scoreA >= WIN_SCORE || scoreB >= WIN_SCORE) {
+      showWinner(scoreA >= WIN_SCORE ? 'A' : 'B');
+    } else {
+      qCount++;
+      newRound();
+    }
+  }
+
+  function showWinner(team) {
+    overlayTitle.textContent = '🎉 ' + teamName(team) + ' Wins!';
+    overlayText.textContent = 'First to ' + WIN_SCORE + ' points — conversion champions!';
+    overlay.classList.add('show');
+  }
+
+  function newMatch() {
+    scoreA = 0; scoreB = 0;
+    scoreAEl.textContent = 0; scoreBEl.textContent = 0;
+    qCount = 1;
+    overlay.classList.remove('show');
+    newRound();
+  }
+
+  buzzA.addEventListener('click', () => onBuzz('A'));
+  buzzB.addEventListener('click', () => onBuzz('B'));
+  document.getElementById('resetBtn').addEventListener('click', newMatch);
+  document.getElementById('playAgainBtn').addEventListener('click', newMatch);
+
+  newRound();
+</script>
+
+</body>
+</html>

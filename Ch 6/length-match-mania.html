@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Length Match Mania | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #e0f7fa 0%, #f3e5f5 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 900px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 26px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 2rem; color: #6b46c1; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1rem; }
+
+  .diffRow {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 16px 0 6px;
+    flex-wrap: wrap;
+  }
+  .diffBtn {
+    font-size: 0.95rem;
+    font-weight: 800;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 2px solid #cbd5e0;
+    background: #f7fafc;
+    cursor: pointer;
+    color: #444;
+  }
+  .diffBtn.active { background: #e9d8fd; border-color: #805ad5; color: #553c9a; }
+
+  .statsRow {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin: 12px 0 16px;
+    font-weight: 800;
+    color: #553c9a;
+    flex-wrap: wrap;
+  }
+  .statsRow span.big { color: #805ad5; }
+
+  .board {
+    display: grid;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .card {
+    width: 100px;
+    height: 76px;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: transform 0.15s ease, background 0.2s;
+    border: 3px solid #b794f4;
+    background: linear-gradient(160deg, #805ad5, #553c9a);
+    color: #fff;
+  }
+  .card:active { transform: scale(0.96); }
+  .card.flipped {
+    background: #fff5f5;
+    color: #444;
+    border-color: #f6ad55;
+  }
+  .card.matched {
+    background: #c6f6d5;
+    color: #22543d;
+    border-color: #38a169;
+    cursor: default;
+  }
+  .card.locked { pointer-events: none; }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+  button.ctrl {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #a0aec0;
+    color: #fff;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard h2 { color: #553c9a; margin-top: 0; }
+  .overlayCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #805ad5;
+    color: #fff;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.4rem; }
+    .card { width: 78px; height: 62px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🧠 Length Match Mania</h1>
+    <p class="subtitle">Flip two cards — find the pair that shows the SAME length!</p>
+  </header>
+
+  <div class="diffRow" id="diffRow">
+    <button class="diffBtn" data-n="6">🟢 Easy (6 pairs)</button>
+    <button class="diffBtn active" data-n="8">🟡 Medium (8 pairs)</button>
+    <button class="diffBtn" data-n="10">🔴 Hard (10 pairs)</button>
+  </div>
+
+  <div class="statsRow">
+    <div>Moves: <span class="big" id="moves">0</span></div>
+    <div>Matched: <span class="big" id="matched">0</span> / <span id="totalPairs">8</span></div>
+    <div>Time: <span class="big" id="timer">0:00</span></div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="controls">
+    <button class="ctrl" id="newGameBtn">🔄 New Game</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <h2>🎉 All Matched!</h2>
+    <p id="overlayText"></p>
+    <button id="playAgainBtn">🔁 Play Again</button>
+  </div>
+</div>
+
+<script>
+  const board = document.getElementById('board');
+  const movesEl = document.getElementById('moves');
+  const matchedEl = document.getElementById('matched');
+  const totalPairsEl = document.getElementById('totalPairs');
+  const timerEl = document.getElementById('timer');
+  const diffRow = document.getElementById('diffRow');
+  const overlay = document.getElementById('overlay');
+  const overlayText = document.getElementById('overlayText');
+
+  let pairCount = 8;
+  let cards = [];
+  let flipped = [];
+  let matchedPairs = 0;
+  let moves = 0;
+  let locked = false;
+  let startTime = null;
+  let timerInterval = null;
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function generatePairs(n) {
+    const used = new Set();
+    const pairs = [];
+    let tries = 0;
+    while (pairs.length < n && tries < 500) {
+      tries++;
+      let cmForm, mForm, cmVal;
+      if (Math.random() < 0.35) {
+        const M = randInt(1, 9);
+        cmVal = M * 100;
+        cmForm = cmVal + ' cm';
+        mForm = M + ' m';
+      } else {
+        const M = randInt(1, 9);
+        const C = randInt(1, 99);
+        cmVal = M * 100 + C;
+        cmForm = cmVal + ' cm';
+        mForm = M + ' m ' + C + ' cm';
+      }
+      if (used.has(cmVal)) continue;
+      used.add(cmVal);
+      pairs.push({ cmForm, mForm });
+    }
+    return pairs;
+  }
+
+  function gridColumns(totalCards) {
+    if (totalCards <= 12) return 4;
+    if (totalCards <= 16) return 4;
+    return 5;
+  }
+
+  function startTimer() {
+    startTime = Date.now();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - startTime) / 1000);
+      const m = Math.floor(secs / 60), s = secs % 60;
+      timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    }, 500);
+  }
+
+  function newGame() {
+    clearInterval(timerInterval);
+    overlay.classList.remove('show');
+    moves = 0;
+    matchedPairs = 0;
+    flipped = [];
+    locked = false;
+    movesEl.textContent = 0;
+    matchedEl.textContent = 0;
+    totalPairsEl.textContent = pairCount;
+    timerEl.textContent = '0:00';
+
+    const pairData = generatePairs(pairCount);
+    let deck = [];
+    pairData.forEach((p, i) => {
+      deck.push({ pairId: i, text: p.cmForm });
+      deck.push({ pairId: i, text: p.mForm });
+    });
+    cards = shuffle(deck);
+
+    const totalCards = cards.length;
+    board.style.gridTemplateColumns = 'repeat(' + gridColumns(totalCards) + ', 1fr)';
+    board.innerHTML = '';
+    cards.forEach((c, idx) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.id = 'card' + idx;
+      div.textContent = '📏';
+      div.addEventListener('click', () => flipCard(idx));
+      board.appendChild(div);
+    });
+
+    startTimer();
+  }
+
+  function flipCard(idx) {
+    if (locked) return;
+    const cardEl = document.getElementById('card' + idx);
+    if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+    if (flipped.length >= 2) return;
+
+    cardEl.classList.add('flipped');
+    cardEl.textContent = cards[idx].text;
+    flipped.push(idx);
+
+    if (flipped.length === 2) {
+      moves++;
+      movesEl.textContent = moves;
+      const [i1, i2] = flipped;
+      if (cards[i1].pairId === cards[i2].pairId) {
+        document.getElementById('card' + i1).classList.add('matched');
+        document.getElementById('card' + i2).classList.add('matched');
+        flipped = [];
+        matchedPairs++;
+        matchedEl.textContent = matchedPairs;
+        if (matchedPairs === pairCount) {
+          clearInterval(timerInterval);
+          setTimeout(() => {
+            overlayText.textContent = 'You matched all ' + pairCount + ' pairs in ' + moves + ' moves and ' + timerEl.textContent + '!';
+            overlay.classList.add('show');
+          }, 500);
+        }
+      } else {
+        locked = true;
+        setTimeout(() => {
+          document.getElementById('card' + i1).classList.remove('flipped');
+          document.getElementById('card' + i2).classList.remove('flipped');
+          document.getElementById('card' + i1).textContent = '📏';
+          document.getElementById('card' + i2).textContent = '📏';
+          flipped = [];
+          locked = false;
+        }, 900);
+      }
+    }
+  }
+
+  diffRow.addEventListener('click', (e) => {
+    const btn = e.target.closest('.diffBtn');
+    if (!btn) return;
+    Array.from(diffRow.children).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    pairCount = parseInt(btn.dataset.n, 10);
+    newGame();
+  });
+
+  document.getElementById('newGameBtn').addEventListener('click', newGame);
+  document.getElementById('playAgainBtn').addEventListener('click', newGame);
+
+  newGame();
+</script>
+
+</body>
+</html>

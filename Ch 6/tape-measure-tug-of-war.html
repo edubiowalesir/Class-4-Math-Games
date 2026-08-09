@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Tape Measure Tug of War | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #eafaf1 0%, #fef9e7 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 1000px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 28px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 2rem; color: #2b6cb0; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1rem; }
+
+  .teamRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 16px 0 6px;
+    flex-wrap: wrap;
+  }
+  .teamBox {
+    flex: 1;
+    min-width: 220px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .teamBox.A { background: #fff5f5; border: 3px solid #e53e3e; }
+  .teamBox.B { background: #ebf8ff; border: 3px solid #3182ce; }
+  .teamBox input {
+    border: none;
+    background: transparent;
+    font-weight: 800;
+    font-size: 1.05rem;
+    width: 100%;
+    outline: none;
+  }
+  .teamBox.A input { color: #c53030; }
+  .teamBox.B input { color: #2b6cb0; }
+
+  .turnBanner {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    padding: 10px;
+    border-radius: 14px;
+    margin: 10px 0 18px;
+    transition: background 0.3s, color 0.3s;
+  }
+  .turnBanner.A { background: #fed7d7; color: #9b2c2c; }
+  .turnBanner.B { background: #bee3f8; color: #2c5282; }
+
+  /* Tug of war rope track */
+  .tugTrack {
+    position: relative;
+    height: 70px;
+    margin: 0 auto 22px;
+    max-width: 620px;
+  }
+  .flag { position: absolute; top: 6px; font-size: 1.8rem; }
+  .flag.left { left: -6px; }
+  .flag.right { right: -6px; }
+  .track {
+    position: absolute;
+    left: 40px; right: 40px; top: 30px;
+    height: 10px;
+    background: linear-gradient(90deg, #fed7d7 0%, #f7fafc 50%, #bee3f8 100%);
+    border-radius: 8px;
+    border: 2px solid #cbd5e0;
+  }
+  .winZone {
+    position: absolute;
+    top: -3px; bottom: -3px;
+    width: 10%;
+  }
+  .winZone.left { left: 0; background: rgba(229,62,62,0.15); border-radius: 8px 0 0 8px; }
+  .winZone.right { right: 0; background: rgba(49,130,206,0.15); border-radius: 0 8px 8px 0; }
+  .knot {
+    position: absolute;
+    top: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #d4a017;
+    border: 4px solid #7a5b00;
+    transform: translateX(-50%);
+    transition: left 0.5s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  }
+
+  .questionCount {
+    text-align: center;
+    color: #718096;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .tapeStage {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    background: #fbfdff;
+    border: 3px dashed #bcd8f5;
+    border-radius: 18px;
+    padding: 40px 20px 20px;
+  }
+  .tapeInner { position: relative; height: 90px; }
+  .tapeBar {
+    position: absolute;
+    top: 40px;
+    height: 40px;
+    background: #fff6cc;
+    border: 2px solid #d4a017;
+    border-radius: 6px;
+  }
+  .tick {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background: #7a5b00;
+  }
+  .tick.major { height: 24px; background: #4a3600; width: 2.5px; }
+  .tick.minor { height: 12px; }
+  .tickLabel {
+    position: absolute;
+    top: -18px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #4a3600;
+    transform: translateX(-50%);
+  }
+  .arrow {
+    position: absolute;
+    top: -8px;
+    width: 0; height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid #e53e3e;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+  }
+
+  .question {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #333;
+    margin: 18px 0 12px;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .optBtn {
+    font-size: 1.15rem;
+    font-weight: 800;
+    padding: 16px 10px;
+    border-radius: 14px;
+    border: 3px solid #cbd5e0;
+    background: #f7fafc;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s;
+  }
+  .optBtn:active { transform: scale(0.97); }
+  .optBtn.correct { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+  .optBtn.wrong { background: #fed7d7; border-color: #e53e3e; color: #822727; }
+  .optBtn:disabled { cursor: not-allowed; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    min-height: 30px;
+    margin-top: 14px;
+  }
+  .feedback.correct { color: #2f855a; }
+  .feedback.wrong { color: #c53030; }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  button.ctrl {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #a0aec0;
+    color: #fff;
+  }
+  button.ctrl:active { transform: scale(0.96); }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard h2 { margin-top: 0; font-size: 1.8rem; }
+  .overlayCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #3182ce;
+    color: #fff;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.4rem; }
+    .options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🪢 Tape Measure Tug of War</h1>
+    <p class="subtitle">Read the arrow on the tape correctly to pull the rope your way!</p>
+  </header>
+
+  <div class="teamRow">
+    <div class="teamBox A">🚩 <input id="teamAName" value="Team A" maxlength="16" /></div>
+    <div class="teamBox B">🚩 <input id="teamBName" value="Team B" maxlength="16" /></div>
+  </div>
+
+  <div class="turnBanner A" id="turnBanner">Team A's Turn</div>
+
+  <div class="tugTrack">
+    <div class="flag left">🚩</div>
+    <div class="flag right">🚩</div>
+    <div class="track">
+      <div class="winZone left"></div>
+      <div class="winZone right"></div>
+    </div>
+    <div class="knot" id="knot"></div>
+  </div>
+
+  <div class="questionCount">Question <span id="qNum">1</span></div>
+
+  <div class="tapeStage">
+    <div class="tapeInner" id="tapeInner"></div>
+  </div>
+
+  <div class="question" id="questionText">Where does the arrow point?</div>
+
+  <div class="options" id="options"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="controls">
+    <button class="ctrl" id="resetBtn">🔄 New Match</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <h2 id="overlayTitle">🎉 Team A Wins!</h2>
+    <p id="overlayText">They pulled the rope all the way!</p>
+    <button id="playAgainBtn">🔁 New Match</button>
+  </div>
+</div>
+
+<script>
+  const SCALE = 6.4;          // px per cm (100 cm tape)
+  const TAPE_CM = 100;
+  const WIN_THRESHOLD = 5;    // rope position magnitude to win
+
+  const tapeInner = document.getElementById('tapeInner');
+  const knot = document.getElementById('knot');
+  const turnBanner = document.getElementById('turnBanner');
+  const teamAInput = document.getElementById('teamAName');
+  const teamBInput = document.getElementById('teamBName');
+  const optionsEl = document.getElementById('options');
+  const questionText = document.getElementById('questionText');
+  const feedback = document.getElementById('feedback');
+  const qNumEl = document.getElementById('qNum');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+
+  let position = 0;       // -5 (Team A wins) ... +5 (Team B wins)
+  let currentTeam = 'A';
+  let qCount = 1;
+  let locked = false;
+
+  function teamName(t) { return t === 'A' ? teamAInput.value.trim() || 'Team A' : teamBInput.value.trim() || 'Team B'; }
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildTape(targetCm) {
+    tapeInner.innerHTML = '';
+    const width = TAPE_CM * SCALE;
+    tapeInner.style.width = width + 'px';
+
+    const bar = document.createElement('div');
+    bar.className = 'tapeBar';
+    bar.style.left = '0px';
+    bar.style.width = width + 'px';
+    tapeInner.appendChild(bar);
+
+    for (let i = 0; i <= TAPE_CM; i += 1) {
+      const tick = document.createElement('div');
+      const isMajor = i % 10 === 0;
+      tick.className = 'tick ' + (isMajor ? 'major' : 'minor');
+      tick.style.left = (i * SCALE) + 'px';
+      tick.style.top = isMajor ? '16px' : '28px';
+      tapeInner.appendChild(tick);
+      if (isMajor) {
+        const lbl = document.createElement('div');
+        lbl.className = 'tickLabel';
+        lbl.style.left = (i * SCALE) + 'px';
+        lbl.textContent = i;
+        tapeInner.appendChild(lbl);
+      }
+    }
+
+    const arrow = document.createElement('div');
+    arrow.className = 'arrow';
+    arrow.style.left = (targetCm * SCALE) + 'px';
+    tapeInner.appendChild(arrow);
+  }
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function generateQuestion() {
+    const V = randInt(4, 96);
+    const correctLabel = V + ' cm';
+
+    // Distractor 1: classic decimal-place error (divide by 10 instead of 100)
+    const decimalErrM = (V / 10).toFixed(1) + ' m';
+
+    // Distractor 2: nearby misreading in cm
+    let offset = randInt(3, 12) * (Math.random() < 0.5 ? -1 : 1);
+    let misread = clamp(V + offset, 1, 99);
+    if (misread === V) misread = clamp(V + 5, 1, 99);
+    const misreadLabel = misread + ' cm';
+
+    // Distractor 3: unit dropped entirely (relabels cm value as m)
+    const unitDroppedLabel = V + ' m';
+
+    const options = shuffle([correctLabel, decimalErrM, misreadLabel, unitDroppedLabel]);
+    return { V, correctLabel, options };
+  }
+
+  let current = null;
+
+  function loadQuestion() {
+    locked = false;
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    qNumEl.textContent = qCount;
+
+    current = generateQuestion();
+    buildTape(current.V);
+
+    optionsEl.innerHTML = '';
+    current.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'optBtn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => handleAnswer(opt, btn));
+      optionsEl.appendChild(btn);
+    });
+
+    updateTurnBanner();
+  }
+
+  function updateTurnBanner() {
+    turnBanner.className = 'turnBanner ' + currentTeam;
+    turnBanner.textContent = teamName(currentTeam) + "'s Turn";
+  }
+
+  function updateKnot() {
+    const pct = ((position + WIN_THRESHOLD) / (WIN_THRESHOLD * 2)) * 100;
+    knot.style.left = pct + '%';
+  }
+
+  function handleAnswer(chosen, btn) {
+    if (locked) return;
+    locked = true;
+
+    const buttons = Array.from(optionsEl.children);
+    const isCorrect = chosen === current.correctLabel;
+
+    buttons.forEach(b => {
+      b.disabled = true;
+      if (b.textContent === current.correctLabel) b.classList.add('correct');
+    });
+    if (!isCorrect) btn.classList.add('wrong');
+
+    const actingTeam = currentTeam;
+    const pullingTeam = isCorrect ? actingTeam : (actingTeam === 'A' ? 'B' : 'A');
+    position += (pullingTeam === 'A' ? -1 : 1);
+    updateKnot();
+
+    if (isCorrect) {
+      feedback.textContent = '✅ Correct! ' + teamName(actingTeam) + ' pulls the rope!';
+      feedback.className = 'feedback correct';
+    } else {
+      feedback.textContent = '❌ Not quite — it was ' + current.correctLabel + '. The rope slips towards ' + teamName(pullingTeam) + '!';
+      feedback.className = 'feedback wrong';
+    }
+
+    if (position <= -WIN_THRESHOLD || position >= WIN_THRESHOLD) {
+      const winner = position <= -WIN_THRESHOLD ? 'A' : 'B';
+      setTimeout(() => showWinner(winner), 900);
+      return;
+    }
+
+    currentTeam = actingTeam === 'A' ? 'B' : 'A';
+    qCount++;
+    setTimeout(loadQuestion, 1400);
+  }
+
+  function showWinner(team) {
+    overlayTitle.textContent = '🎉 ' + teamName(team) + ' Wins!';
+    overlayText.textContent = 'They pulled the rope all the way to their side!';
+    overlay.classList.add('show');
+  }
+
+  function newMatch() {
+    position = 0;
+    currentTeam = 'A';
+    qCount = 1;
+    updateKnot();
+    overlay.classList.remove('show');
+    loadQuestion();
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', newMatch);
+  document.getElementById('playAgainBtn').addEventListener('click', newMatch);
+  teamAInput.addEventListener('input', updateTurnBanner);
+  teamBInput.addEventListener('input', updateTurnBanner);
+
+  updateKnot();
+  loadQuestion();
+</script>
+
+</body>
+</html>

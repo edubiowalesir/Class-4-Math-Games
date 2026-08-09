@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Perimeter Kabaddi Raid | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #fff3e0 0%, #e8f7ee 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 1000px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 28px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 2rem; color: #c05621; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1rem; }
+
+  .teamRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 16px 0 6px;
+    flex-wrap: wrap;
+  }
+  .teamBox {
+    flex: 1;
+    min-width: 220px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .teamBox.A { background: #fff5f5; border: 3px solid #e53e3e; }
+  .teamBox.B { background: #ebf8ff; border: 3px solid #3182ce; }
+  .teamBox input {
+    border: none;
+    background: transparent;
+    font-weight: 800;
+    font-size: 1rem;
+    width: 100%;
+    outline: none;
+  }
+  .teamBox.A input { color: #c53030; }
+  .teamBox.B input { color: #2b6cb0; }
+  .scoreNum { font-size: 1.4rem; margin-left: auto; }
+
+  .qCount {
+    text-align: center;
+    color: #718096;
+    font-weight: 700;
+    margin: 10px 0 4px;
+  }
+
+  .raidBanner {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    padding: 10px;
+    border-radius: 14px;
+    margin: 10px 0 6px;
+  }
+  .raidBanner.A { background: #fed7d7; color: #9b2c2c; }
+  .raidBanner.B { background: #bee3f8; color: #2c5282; }
+
+  .chant {
+    text-align: center;
+    font-weight: 800;
+    color: #dd6b20;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    min-height: 22px;
+  }
+
+  .breathTrack {
+    width: 100%;
+    height: 14px;
+    background: #edf2f7;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 6px 0 16px;
+  }
+  .breathBar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #68d391, #ecc94b, #f56565);
+  }
+
+  .instruction {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a3600;
+    margin-bottom: 12px;
+  }
+
+  .fieldStage {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background: #fbfdff;
+    border: 3px dashed #bcd8f5;
+    border-radius: 18px;
+    overflow-x: auto;
+    margin-bottom: 18px;
+  }
+  .shapeGrid {
+    display: grid;
+    gap: 2px;
+  }
+  .cell {
+    width: 40px;
+    height: 40px;
+    background: #eef4fb;
+    border: 1px solid #cbd5e0;
+    border-radius: 3px;
+  }
+  .cell.filled {
+    background: #ecc94b;
+    border: 2px solid #b7791f;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .optBtn {
+    font-size: 1.15rem;
+    font-weight: 800;
+    padding: 16px 10px;
+    border-radius: 14px;
+    border: 3px solid #cbd5e0;
+    background: #f7fafc;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s;
+  }
+  .optBtn:active { transform: scale(0.97); }
+  .optBtn.correct { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+  .optBtn.wrong { background: #fed7d7; border-color: #e53e3e; color: #822727; }
+  .optBtn:disabled { cursor: not-allowed; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    min-height: 30px;
+    margin-top: 16px;
+  }
+  .feedback.correct { color: #2f855a; }
+  .feedback.wrong { color: #c53030; }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  button.ctrl {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #a0aec0;
+    color: #fff;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard h2 { margin-top: 0; font-size: 1.8rem; }
+  .overlayCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #3182ce;
+    color: #fff;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.4rem; }
+    .options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🤾 Perimeter Kabaddi Raid</h1>
+    <p class="subtitle">Cross into the field, find the perimeter, and get back before your breath runs out!</p>
+  </header>
+
+  <div class="teamRow">
+    <div class="teamBox A">🚩 <input id="teamAName" value="Team A" maxlength="16" /> <span class="scoreNum" id="scoreA">0</span></div>
+    <div class="teamBox B">🚩 <input id="teamBName" value="Team B" maxlength="16" /> <span class="scoreNum" id="scoreB">0</span></div>
+  </div>
+
+  <div class="qCount">Raid <span id="qNum">1</span> · First to <span id="winScoreLabel">7</span> points wins</div>
+
+  <div class="raidBanner A" id="raidBanner">Team A is Raiding!</div>
+  <div class="chant" id="chant">🗣️ Kabaddi Kabaddi Kabaddi...</div>
+
+  <div class="breathTrack"><div class="breathBar" id="breathBar"></div></div>
+
+  <div class="instruction">Each square = 1 cm. What is the perimeter of this field?</div>
+
+  <div class="fieldStage">
+    <div class="shapeGrid" id="shapeGrid"></div>
+  </div>
+
+  <div class="options" id="options"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="controls">
+    <button class="ctrl" id="resetBtn">🔄 New Match</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <h2 id="overlayTitle">🎉 Team A Wins!</h2>
+    <p id="overlayText">Champion raiders of the perimeter field!</p>
+    <button id="playAgainBtn">🔁 New Match</button>
+  </div>
+</div>
+
+<script>
+  const WIN_SCORE = 7;
+  const BREATH_TIME = 12000; // ms
+
+  const teamAInput = document.getElementById('teamAName');
+  const teamBInput = document.getElementById('teamBName');
+  const scoreAEl = document.getElementById('scoreA');
+  const scoreBEl = document.getElementById('scoreB');
+  const qNumEl = document.getElementById('qNum');
+  const raidBanner = document.getElementById('raidBanner');
+  const breathBar = document.getElementById('breathBar');
+  const shapeGrid = document.getElementById('shapeGrid');
+  const optionsEl = document.getElementById('options');
+  const feedback = document.getElementById('feedback');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+
+  document.getElementById('winScoreLabel').textContent = WIN_SCORE;
+
+  function rect(w, h) {
+    const c = [];
+    for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) c.push([x, y]);
+    return c;
+  }
+
+  const SHAPES = [
+    rect(3, 2), rect(4, 2), rect(2, 5), rect(3, 3), rect(4, 3), rect(5, 2),
+    [[0,0],[1,0],[2,0],[0,1],[0,2]],                // L
+    [[0,0],[1,0],[2,0],[1,1],[1,2]],                // T
+    [[1,0],[0,1],[1,1],[2,1],[1,2]],                // plus
+    [[0,0],[0,1],[1,1],[1,2],[2,2]],                // staircase
+    [[0,0],[0,1],[0,2],[1,2],[2,2],[2,1],[2,0]],    // U
+    [[0,0],[1,0],[1,1],[2,1],[2,2]]                 // zigzag
+  ];
+
+  let scoreA = 0, scoreB = 0;
+  let qCount = 1;
+  let raidingTeam = 'A';
+  let locked = false;
+  let timeoutId = null;
+  let current = null;
+
+  function teamName(t) { return t === 'A' ? (teamAInput.value.trim() || 'Team A') : (teamBInput.value.trim() || 'Team B'); }
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function calcPerimeter(cells) {
+    const set = new Set(cells.map(([x, y]) => x + ',' + y));
+    let p = 0;
+    cells.forEach(([x, y]) => {
+      [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].forEach(([nx, ny]) => {
+        if (!set.has(nx + ',' + ny)) p++;
+      });
+    });
+    return p;
+  }
+
+  function collectDistractors(correct, makeCandidate, count, maxTries) {
+    const set = new Set();
+    let tries = 0;
+    while (set.size < count && tries < maxTries) {
+      const c = makeCandidate();
+      if (c && c !== correct) set.add(c);
+      tries++;
+    }
+    return Array.from(set);
+  }
+
+  function generateQuestion() {
+    const cells = SHAPES[randInt(0, SHAPES.length - 1)];
+    const P = calcPerimeter(cells);
+    const area = cells.length;
+    const correct = P + ' cm';
+    const makeCandidate = () => {
+      const kind = randInt(0, 2);
+      if (kind === 0) return clamp(P + 2, 2, 60) + ' cm';
+      if (kind === 1) return clamp(P - 2, 2, 60) + ' cm';
+      return area + ' cm';
+    };
+    const distractors = collectDistractors(correct, makeCandidate, 3, 40);
+    const options = shuffle([correct, ...distractors]);
+    return { cells, correct, options };
+  }
+
+  function renderShape(cells) {
+    const xs = cells.map(c => c[0]), ys = cells.map(c => c[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const pad = 1;
+    const cols = (maxX - minX + 1) + 2 * pad;
+    const rows = (maxY - minY + 1) + 2 * pad;
+    const set = new Set(cells.map(([x, y]) => (x - minX + pad) + ',' + (y - minY + pad)));
+
+    shapeGrid.style.gridTemplateColumns = 'repeat(' + cols + ', 40px)';
+    shapeGrid.style.gridTemplateRows = 'repeat(' + rows + ', 40px)';
+    shapeGrid.innerHTML = '';
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const div = document.createElement('div');
+        div.className = 'cell' + (set.has(c + ',' + r) ? ' filled' : '');
+        shapeGrid.appendChild(div);
+      }
+    }
+  }
+
+  function startBreathBar(duration) {
+    breathBar.style.transition = 'none';
+    breathBar.style.width = '100%';
+    void breathBar.offsetWidth;
+    breathBar.style.transition = 'width ' + (duration / 1000) + 's linear';
+    breathBar.style.width = '0%';
+  }
+
+  function addScore(team, n) {
+    if (team === 'A') { scoreA += n; scoreAEl.textContent = scoreA; }
+    else { scoreB += n; scoreBEl.textContent = scoreB; }
+  }
+
+  function updateRaidBanner() {
+    raidBanner.className = 'raidBanner ' + raidingTeam;
+    raidBanner.textContent = teamName(raidingTeam) + ' is Raiding!';
+  }
+
+  function loadQuestion() {
+    locked = false;
+    clearTimeout(timeoutId);
+    feedback.textContent = '';
+    feedback.className = 'feedback';
+    qNumEl.textContent = qCount;
+
+    current = generateQuestion();
+    renderShape(current.cells);
+    updateRaidBanner();
+
+    optionsEl.innerHTML = '';
+    current.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'optBtn';
+      btn.textContent = opt;
+      btn.addEventListener('click', () => handleAnswer(opt, btn));
+      optionsEl.appendChild(btn);
+    });
+
+    startBreathBar(BREATH_TIME);
+    timeoutId = setTimeout(onTimeout, BREATH_TIME);
+  }
+
+  function revealCorrect(buttons) {
+    buttons.forEach(b => { b.disabled = true; if (b.textContent === current.correct) b.classList.add('correct'); });
+  }
+
+  function finishRound(success) {
+    if (checkWin()) return;
+    raidingTeam = raidingTeam === 'A' ? 'B' : 'A';
+    qCount++;
+    setTimeout(loadQuestion, 1700);
+  }
+
+  function handleAnswer(opt, btn) {
+    if (locked) return;
+    locked = true;
+    clearTimeout(timeoutId);
+
+    const buttons = Array.from(optionsEl.children);
+    revealCorrect(buttons);
+    const success = opt === current.correct;
+    if (!success) btn.classList.add('wrong');
+
+    if (success) {
+      addScore(raidingTeam, 1);
+      feedback.textContent = '✅ Raid successful! ' + teamName(raidingTeam) + ' scores a point!';
+      feedback.className = 'feedback correct';
+    } else {
+      const defend = raidingTeam === 'A' ? 'B' : 'A';
+      addScore(defend, 1);
+      feedback.textContent = '❌ Raider caught! ' + teamName(defend) + ' scores a defense point. It was ' + current.correct + '.';
+      feedback.className = 'feedback wrong';
+    }
+    finishRound(success);
+  }
+
+  function onTimeout() {
+    if (locked) return;
+    locked = true;
+    const buttons = Array.from(optionsEl.children);
+    revealCorrect(buttons);
+    const defend = raidingTeam === 'A' ? 'B' : 'A';
+    addScore(defend, 1);
+    feedback.textContent = "⏰ Breath ran out! Raider caught. " + teamName(defend) + ' scores a defense point. It was ' + current.correct + '.';
+    feedback.className = 'feedback wrong';
+    finishRound(false);
+  }
+
+  function checkWin() {
+    if (scoreA >= WIN_SCORE || scoreB >= WIN_SCORE) {
+      showWinner(scoreA >= WIN_SCORE ? 'A' : 'B');
+      return true;
+    }
+    return false;
+  }
+
+  function showWinner(team) {
+    overlayTitle.textContent = '🎉 ' + teamName(team) + ' Wins!';
+    overlayText.textContent = 'First to ' + WIN_SCORE + ' points — champion raiders of the field!';
+    overlay.classList.add('show');
+  }
+
+  function newMatch() {
+    scoreA = 0; scoreB = 0;
+    scoreAEl.textContent = 0; scoreBEl.textContent = 0;
+    qCount = 1;
+    raidingTeam = 'A';
+    overlay.classList.remove('show');
+    loadQuestion();
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', newMatch);
+  document.getElementById('playAgainBtn').addEventListener('click', newMatch);
+  teamAInput.addEventListener('input', updateRaidBanner);
+  teamBInput.addEventListener('input', updateRaidBanner);
+
+  loadQuestion();
+</script>
+
+</body>
+</html>
