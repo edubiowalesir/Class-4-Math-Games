@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Follow the Surveyor | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #fff3e0 0%, #e0f7fa 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 700px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 26px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 1.9rem; color: #2c5282; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 0.98rem; }
+
+  .hud {
+    display: flex;
+    justify-content: center;
+    gap: 26px;
+    margin: 18px 0 14px;
+    font-weight: 800;
+    color: #2c5282;
+    flex-wrap: wrap;
+  }
+  .hud .big { display: block; font-size: 1.3rem; color: #2f855a; }
+
+  .compassWrap { display: flex; justify-content: center; margin-bottom: 18px; }
+  .compass {
+    display: grid;
+    grid-template-columns: 110px 110px 110px;
+    grid-template-rows: 110px 110px 110px;
+    gap: 8px;
+  }
+  .padBtn {
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 1rem;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: transform 0.1s ease, filter 0.15s ease;
+    opacity: 0.88;
+  }
+  .padBtn:disabled { cursor: not-allowed; }
+  .padBtn .arrow { font-size: 1.8rem; }
+  .padBtn.active { filter: brightness(1.5); transform: scale(1.06); opacity: 1; }
+
+  #btnN { grid-column: 2; grid-row: 1; background: #4299e1; }
+  #btnW { grid-column: 1; grid-row: 2; background: #68d391; }
+  #btnCenter {
+    grid-column: 2; grid-row: 2;
+    background: #f7fafc;
+    border: 3px dashed #cbd5e0;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-weight: 900;
+    color: #4a5568;
+    font-size: 1.4rem;
+    padding: 6px;
+  }
+  #btnE { grid-column: 3; grid-row: 2; background: #f56565; }
+  #btnS { grid-column: 2; grid-row: 3; background: #ecc94b; color: #4a3600; }
+
+  .statusText {
+    text-align: center;
+    font-weight: 800;
+    color: #4a5568;
+    min-height: 28px;
+    margin-bottom: 10px;
+  }
+
+  .controls { display: flex; justify-content: center; }
+  #startBtn {
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #38a169;
+    color: #fff;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 32px 38px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard h2 { color: #c53030; margin-top: 0; }
+  .overlayCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #3182ce;
+    color: #fff;
+  }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 1.3rem; }
+    .compass { grid-template-columns: 90px 90px 90px; grid-template-rows: 90px 90px 90px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🧭 Follow the Surveyor</h1>
+    <p class="subtitle">Watch the path the surveyor walks, then repeat it back — in the same order!</p>
+  </header>
+
+  <div class="hud">
+    <div>Round<span class="big" id="round">0</span></div>
+    <div>Path length so far<span class="big" id="total">0 cm</span></div>
+  </div>
+
+  <div class="compassWrap">
+    <div class="compass">
+      <button class="padBtn" id="btnN" disabled><span class="arrow">⬆️</span>North · 4 cm</button>
+      <button class="padBtn" id="btnW" disabled><span class="arrow">⬅️</span>West · 7 cm</button>
+      <div id="btnCenter">Ready?</div>
+      <button class="padBtn" id="btnE" disabled><span class="arrow">➡️</span>East · 7 cm</button>
+      <button class="padBtn" id="btnS" disabled><span class="arrow">⬇️</span>South · 4 cm</button>
+    </div>
+  </div>
+
+  <div class="statusText" id="statusText">Tap Start to help the surveyor walk the boundary!</div>
+
+  <div class="controls">
+    <button id="startBtn">▶️ Start</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <h2>🧭 Path Broken!</h2>
+    <p id="overlayText"></p>
+    <button id="playAgainBtn">🔁 Try Again</button>
+  </div>
+</div>
+
+<script>
+  const DIRS = [
+    { id: 'btnN', len: 4, name: 'North' },
+    { id: 'btnE', len: 7, name: 'East' },
+    { id: 'btnS', len: 4, name: 'South' },
+    { id: 'btnW', len: 7, name: 'West' }
+  ];
+
+  const roundEl = document.getElementById('round');
+  const totalEl = document.getElementById('total');
+  const statusText = document.getElementById('statusText');
+  const btnCenter = document.getElementById('btnCenter');
+  const startBtn = document.getElementById('startBtn');
+  const overlay = document.getElementById('overlay');
+  const overlayText = document.getElementById('overlayText');
+
+  const buttons = DIRS.map(d => document.getElementById(d.id));
+
+  let sequence = [];
+  let playerIndex = 0;
+  let round = 0;
+  let state = 'idle'; // idle | showing | input | over
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function setButtonsEnabled(enabled) {
+    buttons.forEach(b => b.disabled = !enabled);
+  }
+
+  function highlight(idx, on) {
+    buttons[idx].classList.toggle('active', on);
+  }
+
+  function addRandomStep() {
+    sequence.push(randInt(0, 3));
+  }
+
+  function playSequence() {
+    state = 'showing';
+    setButtonsEnabled(false);
+    btnCenter.textContent = '👀 Watch...';
+    statusText.textContent = 'Watch the surveyor\'s path carefully...';
+    let i = 0;
+    function step() {
+      if (i >= sequence.length) {
+        state = 'input';
+        playerIndex = 0;
+        setButtonsEnabled(true);
+        btnCenter.textContent = '🎯 Your Turn!';
+        statusText.textContent = 'Now tap the same directions in order!';
+        return;
+      }
+      const idx = sequence[i];
+      highlight(idx, true);
+      setTimeout(() => {
+        highlight(idx, false);
+        i++;
+        setTimeout(step, 220);
+      }, 480);
+    }
+    setTimeout(step, 500);
+  }
+
+  function handlePress(idx) {
+    if (state !== 'input') return;
+    highlight(idx, true);
+    setTimeout(() => highlight(idx, false), 200);
+
+    if (sequence[playerIndex] === idx) {
+      playerIndex++;
+      if (playerIndex === sequence.length) {
+        const total = sequence.reduce((s, i2) => s + DIRS[i2].len, 0);
+        totalEl.textContent = total + ' cm';
+        round++;
+        roundEl.textContent = round;
+        state = 'idle';
+        setButtonsEnabled(false);
+        btnCenter.textContent = '✅ Nice!';
+        statusText.textContent = 'Round ' + round + ' complete! Get ready for the next path...';
+        setTimeout(() => { addRandomStep(); playSequence(); }, 1100);
+      }
+    } else {
+      gameOver();
+    }
+  }
+
+  function gameOver() {
+    state = 'over';
+    setButtonsEnabled(false);
+    const total = sequence.slice(0, playerIndex).reduce((s, i2) => s + DIRS[i2].len, 0);
+    btnCenter.textContent = '💥 Oops!';
+    statusText.textContent = '';
+    overlayText.textContent = 'You correctly walked a path of ' + total + ' cm (' + playerIndex + ' steps) before missing step ' +
+      (playerIndex + 1) + ' of round ' + (round + 1) + '. Final round reached: ' + round + '.';
+    overlay.classList.add('show');
+  }
+
+  function startGame() {
+    sequence = [];
+    playerIndex = 0;
+    round = 0;
+    roundEl.textContent = 0;
+    totalEl.textContent = '0 cm';
+    overlay.classList.remove('show');
+    addRandomStep();
+    playSequence();
+  }
+
+  buttons.forEach((b, idx) => b.addEventListener('click', () => handlePress(idx)));
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('playAgainBtn').addEventListener('click', startGame);
+</script>
+
+</body>
+</html>
