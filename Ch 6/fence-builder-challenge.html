@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Fence Builder Challenge | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(160deg, #e8f8e8 0%, #fff8e1 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 900px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 26px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 2rem; color: #2f855a; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1rem; }
+
+  .modeRow {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 16px 0 6px;
+  }
+  .modeBtn {
+    font-size: 0.95rem;
+    font-weight: 800;
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: 2px solid #cbd5e0;
+    background: #f7fafc;
+    cursor: pointer;
+    color: #444;
+  }
+  .modeBtn.active { background: #c6f6d5; border-color: #38a169; color: #22543d; }
+
+  .challengeBanner {
+    text-align: center;
+    background: #fffaf0;
+    border: 3px solid #ecc94b;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-weight: 800;
+    color: #7a5b00;
+    margin: 12px 0;
+    font-size: 1.05rem;
+  }
+
+  .statsRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin: 10px 0 18px;
+  }
+  .statCard {
+    background: #f0f7ff;
+    border: 2px solid #bcd8f5;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-weight: 800;
+    color: #2b6cb0;
+    text-align: center;
+    min-width: 120px;
+  }
+  .statCard .big { font-size: 1.3rem; display: block; }
+  .statCard.match .big { color: #2f855a; }
+
+  .gridStage {
+    display: flex;
+    justify-content: center;
+    background: #fbfdff;
+    border: 3px dashed #bcd8f5;
+    border-radius: 18px;
+    padding: 14px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(8, 38px);
+    grid-template-rows: repeat(8, 38px);
+    gap: 2px;
+  }
+  .cell {
+    width: 38px;
+    height: 38px;
+    background: #eef4fb;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .cell.filled {
+    background: #68d391;
+    border: 2px solid #2f855a;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  button.ctrl {
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #fff;
+  }
+  #clearBtn { background: #a0aec0; }
+  #newChallengeBtn { background: #3182ce; }
+
+  .ideasBox {
+    margin-top: 16px;
+    background: #f7fafc;
+    border-radius: 14px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .ideasBox p { margin: 4px 0; font-weight: 700; color: #4a5568; font-size: 0.95rem; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .overlay.show { display: flex; }
+  .overlayCard {
+    background: #fff;
+    border-radius: 22px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 420px;
+  }
+  .overlayCard .emoji { font-size: 3rem; }
+  .overlayCard h2 { color: #2f855a; margin: 8px 0 4px; }
+  .overlayCard button {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #3182ce;
+    color: #fff;
+  }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 1.4rem; }
+    .grid { grid-template-columns: repeat(8, 32px); grid-template-rows: repeat(8, 32px); }
+    .cell { width: 32px; height: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🧱 Fence Builder Challenge</h1>
+    <p class="subtitle">Tap squares to build a fenced yard. Watch the area and perimeter change as you build!</p>
+  </header>
+
+  <div class="modeRow">
+    <button class="modeBtn active" id="challengeModeBtn">🎯 Challenge Mode</button>
+    <button class="modeBtn" id="freeModeBtn">🎨 Free Build</button>
+  </div>
+
+  <div class="challengeBanner" id="challengeBanner"></div>
+
+  <div class="statsRow">
+    <div class="statCard"><span>Area</span><span class="big" id="area">0</span> sq cm</div>
+    <div class="statCard" id="perimCard"><span>Perimeter (Fencing)</span><span class="big" id="perim">0</span> cm</div>
+    <div class="statCard"><span>Yards Built</span><span class="big" id="regions">0</span></div>
+  </div>
+
+  <div class="gridStage">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl" id="clearBtn">🗑️ Clear Grid</button>
+    <button class="ctrl" id="newChallengeBtn">🔄 New Challenge</button>
+  </div>
+
+  <div class="ideasBox" id="ideasBox" style="display:none;">
+    <p>🤔 Try This!</p>
+    <p id="ideaText"></p>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlayCard">
+    <div class="emoji" id="overlayEmoji">🐐</div>
+    <h2>Perfect Fence!</h2>
+    <p id="overlayText"></p>
+    <button id="nextBtn">➡️ Next Challenge</button>
+  </div>
+</div>
+
+<script>
+  const GRID_SIZE = 8;
+  const ANIMALS = ['🐐 goat', '🐔 hen', '🐰 rabbit', '🐕 dog', '🐖 pig', '🐑 sheep'];
+  const IDEAS = [
+    'Build the SMALLEST perimeter you can for an area of 9 sq cm.',
+    'Build two separate yards with the same total area.',
+    'Make a perimeter of exactly 20 cm using the FEWEST squares possible.',
+    'Build a shape with area 10 sq cm but a really LONG perimeter.',
+    'Can you build two different shapes with the same perimeter but different areas?'
+  ];
+
+  const grid = document.getElementById('grid');
+  const areaEl = document.getElementById('area');
+  const perimEl = document.getElementById('perim');
+  const regionsEl = document.getElementById('regions');
+  const perimCard = document.getElementById('perimCard');
+  const challengeBanner = document.getElementById('challengeBanner');
+  const ideasBox = document.getElementById('ideasBox');
+  const ideaText = document.getElementById('ideaText');
+  const overlay = document.getElementById('overlay');
+  const overlayEmoji = document.getElementById('overlayEmoji');
+  const overlayText = document.getElementById('overlayText');
+  const challengeModeBtn = document.getElementById('challengeModeBtn');
+  const freeModeBtn = document.getElementById('freeModeBtn');
+
+  let filled = new Set();
+  let mode = 'challenge'; // 'challenge' | 'free'
+  let target = 0;
+  let animal = ANIMALS[0];
+  let celebrated = false;
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function buildGrid() {
+    grid.innerHTML = '';
+    for (let y = 0; y < GRID_SIZE; y++) {
+      for (let x = 0; x < GRID_SIZE; x++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.key = x + ',' + y;
+        cell.addEventListener('click', () => toggleCell(x, y, cell));
+        grid.appendChild(cell);
+      }
+    }
+  }
+
+  function toggleCell(x, y, cellEl) {
+    const key = x + ',' + y;
+    if (filled.has(key)) { filled.delete(key); cellEl.classList.remove('filled'); }
+    else { filled.add(key); cellEl.classList.add('filled'); }
+    recompute();
+  }
+
+  function calcPerimeter(set) {
+    let p = 0;
+    set.forEach(key => {
+      const [x, y] = key.split(',').map(Number);
+      [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].forEach(([nx, ny]) => {
+        if (!set.has(nx + ',' + ny)) p++;
+      });
+    });
+    return p;
+  }
+
+  function countRegions(set) {
+    const visited = new Set();
+    let regions = 0;
+    set.forEach(key => {
+      if (visited.has(key)) return;
+      regions++;
+      const stack = [key];
+      visited.add(key);
+      while (stack.length) {
+        const cur = stack.pop();
+        const [x, y] = cur.split(',').map(Number);
+        [[x+1,y],[x-1,y],[x,y+1],[x,y-1]].forEach(([nx, ny]) => {
+          const nk = nx + ',' + ny;
+          if (set.has(nk) && !visited.has(nk)) { visited.add(nk); stack.push(nk); }
+        });
+      }
+    });
+    return regions;
+  }
+
+  function recompute() {
+    const area = filled.size;
+    const perim = calcPerimeter(filled);
+    const regions = countRegions(filled);
+    areaEl.textContent = area;
+    perimEl.textContent = perim;
+    regionsEl.textContent = regions;
+
+    if (mode === 'challenge') {
+      const isMatch = area > 0 && perim === target;
+      perimCard.classList.toggle('match', isMatch);
+      if (isMatch && !celebrated) {
+        celebrated = true;
+        setTimeout(showSuccess, 350);
+      }
+    } else {
+      perimCard.classList.remove('match');
+    }
+  }
+
+  function showSuccess() {
+    overlayEmoji.textContent = animal.split(' ')[0];
+    overlayText.textContent = 'You built a pen with exactly ' + target + ' cm of fencing for the ' + animal.split(' ')[1] + '!';
+    overlay.classList.add('show');
+  }
+
+  function newChallengeTarget() {
+    const evens = [8, 10, 12, 14, 16, 18, 20, 22, 24];
+    target = evens[randInt(0, evens.length - 1)];
+    animal = ANIMALS[randInt(0, ANIMALS.length - 1)];
+    challengeBanner.textContent = animal.split(' ')[0] + ' Build a ' + animal.split(' ')[1] + ' pen with EXACTLY ' + target + ' cm of fencing!';
+  }
+
+  function clearGrid() {
+    filled = new Set();
+    Array.from(grid.children).forEach(c => c.classList.remove('filled'));
+    celebrated = false;
+    overlay.classList.remove('show');
+    recompute();
+  }
+
+  function newChallenge() {
+    if (mode === 'challenge') newChallengeTarget();
+    clearGrid();
+  }
+
+  function setMode(m) {
+    mode = m;
+    challengeModeBtn.classList.toggle('active', m === 'challenge');
+    freeModeBtn.classList.toggle('active', m === 'free');
+    challengeBanner.style.display = m === 'challenge' ? 'block' : 'none';
+    ideasBox.style.display = m === 'free' ? 'block' : 'none';
+    if (m === 'free') {
+      ideaText.textContent = IDEAS[randInt(0, IDEAS.length - 1)];
+    }
+    newChallenge();
+  }
+
+  challengeModeBtn.addEventListener('click', () => setMode('challenge'));
+  freeModeBtn.addEventListener('click', () => setMode('free'));
+  document.getElementById('clearBtn').addEventListener('click', clearGrid);
+  document.getElementById('newChallengeBtn').addEventListener('click', newChallenge);
+  document.getElementById('nextBtn').addEventListener('click', newChallenge);
+
+  buildGrid();
+  setMode('challenge');
+</script>
+
+</body>
+</html>

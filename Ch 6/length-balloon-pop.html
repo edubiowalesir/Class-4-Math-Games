@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Length Balloon Pop | Class 4 Measuring Length</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Verdana, Arial, sans-serif;
+    background: linear-gradient(180deg, #aee1f9 0%, #e0f7fa 60%, #fff8e1 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    user-select: none;
+  }
+  .app {
+    width: 100%;
+    max-width: 900px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    padding: 20px 26px 28px;
+  }
+  header { text-align: center; margin-bottom: 4px; }
+  h1 { margin: 0; font-size: 2rem; color: #2b6cb0; }
+  .subtitle { margin: 6px 0 0; color: #555; font-size: 1rem; }
+
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f0f7ff;
+    border-radius: 14px;
+    padding: 10px 20px;
+    margin: 16px 0 10px;
+    font-weight: 800;
+    color: #2b6cb0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .hud .lives { color: #e53e3e; font-size: 1.2rem; }
+
+  .targetBanner {
+    text-align: center;
+    background: #fffaf0;
+    border: 3px solid #ecc94b;
+    border-radius: 14px;
+    padding: 10px;
+    font-weight: 800;
+    color: #7a5b00;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    background: linear-gradient(180deg, #cdeffd 0%, #eafaf1 100%);
+    border: 3px dashed #bcd8f5;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .startOverlay, .endOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    z-index: 20;
+  }
+  .startOverlay h2, .endOverlay h2 { color: #2b6cb0; margin: 6px 0; }
+  .startOverlay button, .endOverlay button {
+    margin-top: 14px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #38a169;
+    color: #fff;
+  }
+
+  .balloon {
+    position: absolute;
+    width: 76px;
+    height: 92px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5;
+  }
+  .balloon .body {
+    width: 66px;
+    height: 78px;
+    border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.82rem;
+    color: #fff;
+    text-align: center;
+    padding: 4px;
+    box-shadow: inset -6px -6px 10px rgba(0,0,0,0.15);
+  }
+  .balloon .string {
+    width: 2px;
+    height: 16px;
+    background: #999;
+  }
+  .balloon.c1 .body { background: #f56565; }
+  .balloon.c2 .body { background: #4299e1; }
+  .balloon.c3 .body { background: #ecc94b; color: #4a3600; }
+  .balloon.c4 .body { background: #68d391; }
+  .balloon.c5 .body { background: #b794f4; }
+
+  .popText {
+    position: absolute;
+    font-weight: 900;
+    font-size: 1.3rem;
+    pointer-events: none;
+    animation: floatFade 0.7s ease forwards;
+    z-index: 10;
+  }
+  .popText.good { color: #2f855a; }
+  .popText.bad { color: #c53030; }
+  @keyframes floatFade {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-40px); }
+  }
+
+  @keyframes floatUp {
+    from { bottom: -100px; }
+    to { bottom: 105%; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.4rem; }
+    .stage { height: 360px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1>🎈 Length Balloon Pop</h1>
+    <p class="subtitle">Pop only the balloons that match the target length — before they float away!</p>
+  </header>
+
+  <div class="hud">
+    <div>Score: <span id="score">0</span></div>
+    <div class="lives" id="lives">❤️❤️❤️</div>
+    <div>Time: <span id="time">60</span>s</div>
+  </div>
+
+  <div class="targetBanner" id="targetBanner">🎯 Get Ready!</div>
+
+  <div class="stage" id="stage">
+    <div class="startOverlay" id="startOverlay">
+      <h2>🎈 Ready to Play?</h2>
+      <p>Pop balloons that equal the target length shown above.<br>Wrong pops cost a life — watch out for tricky lengths!</p>
+      <button id="startBtn">▶️ Start Game</button>
+    </div>
+    <div class="endOverlay" id="endOverlay" style="display:none;">
+      <h2 id="endTitle">Time's Up!</h2>
+      <p id="endText"></p>
+      <button id="playAgainBtn">🔁 Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const timeEl = document.getElementById('time');
+  const targetBanner = document.getElementById('targetBanner');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const endTitle = document.getElementById('endTitle');
+  const endText = document.getElementById('endText');
+
+  const GAME_TIME = 60;
+  const COLORS = ['c1', 'c2', 'c3', 'c4', 'c5'];
+
+  let score = 0;
+  let lives = 3;
+  let timeLeft = GAME_TIME;
+  let targetM = 3;
+  let running = false;
+  let spawnTimeout = null;
+  let countdownInterval = null;
+  let targetRotateInterval = null;
+  let missed = 0;
+  let popped = 0;
+
+  function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  function pickNewTarget() {
+    targetM = randInt(1, 6);
+    targetBanner.textContent = '🎯 Pop balloons equal to ' + targetM + ' m (' + (targetM * 100) + ' cm)!';
+  }
+
+  function generateBalloonData() {
+    const T = targetM * 100;
+    const isCorrect = Math.random() < 0.45;
+    if (isCorrect) {
+      const text = Math.random() < 0.5 ? (T + ' cm') : (targetM + ' m');
+      return { text, correct: true };
+    }
+    const kind = randInt(0, 3);
+    if (kind === 0) {
+      let M2 = randInt(1, 6);
+      if (M2 === targetM) M2 = (M2 % 6) + 1;
+      const text = Math.random() < 0.5 ? (M2 + ' m') : ((M2 * 100) + ' cm');
+      return { text, correct: false };
+    }
+    if (kind === 1) {
+      return { text: targetM + ' cm', correct: false }; // classic trap: metre number mislabelled as cm
+    }
+    if (kind === 2) {
+      return { text: (targetM * 10) + ' cm', correct: false }; // decimal-place slip
+    }
+    const off = randInt(10, 90) * (Math.random() < 0.5 ? -1 : 1);
+    return { text: Math.max(1, T + off) + ' cm', correct: false };
+  }
+
+  function updateHud() {
+    scoreEl.textContent = score;
+    livesEl.textContent = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, 3 - lives));
+    timeEl.textContent = timeLeft;
+  }
+
+  function showPopText(x, y, text, cls) {
+    const el = document.createElement('div');
+    el.className = 'popText ' + cls;
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    stage.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+
+  function popBalloon(balloonEl, data) {
+    if (!running) return;
+    const rect = balloonEl.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    const x = rect.left - stageRect.left + rect.width / 2 - 12;
+    const y = rect.top - stageRect.top;
+    balloonEl.remove();
+
+    if (data.correct) {
+      score++;
+      popped++;
+      showPopText(x, y, '+1', 'good');
+    } else {
+      score = Math.max(0, score - 1);
+      lives--;
+      showPopText(x, y, '-1 💥', 'bad');
+      if (lives <= 0) { endGame('outOfLives'); return; }
+    }
+    updateHud();
+  }
+
+  function spawnBalloon() {
+    if (!running) return;
+    const data = generateBalloonData();
+    const balloon = document.createElement('div');
+    const color = COLORS[randInt(0, COLORS.length - 1)];
+    balloon.className = 'balloon ' + color;
+
+    const stageWidth = stage.clientWidth;
+    const left = randInt(10, Math.max(10, stageWidth - 90));
+    balloon.style.left = left + 'px';
+    const duration = (Math.random() * 2.5 + 5.5).toFixed(2);
+    balloon.style.animation = 'floatUp ' + duration + 's linear forwards';
+
+    balloon.innerHTML = '<div class="body">' + data.text + '</div><div class="string"></div>';
+    balloon.addEventListener('click', () => popBalloon(balloon, data));
+
+    balloon.addEventListener('animationend', () => {
+      if (balloon.isConnected) {
+        if (data.correct) missed++;
+        balloon.remove();
+      }
+    });
+
+    stage.appendChild(balloon);
+    spawnTimeout = setTimeout(spawnBalloon, randInt(900, 1400));
+  }
+
+  function startCountdown() {
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      updateHud();
+      if (timeLeft <= 0) endGame('timeUp');
+    }, 1000);
+  }
+
+  function startGame() {
+    score = 0; lives = 3; timeLeft = GAME_TIME; missed = 0; popped = 0;
+    running = true;
+    startOverlay.style.display = 'none';
+    endOverlay.style.display = 'none';
+    Array.from(stage.querySelectorAll('.balloon')).forEach(b => b.remove());
+    updateHud();
+    pickNewTarget();
+    spawnBalloon();
+    startCountdown();
+    targetRotateInterval = setInterval(pickNewTarget, 15000);
+  }
+
+  function endGame(reason) {
+    running = false;
+    clearTimeout(spawnTimeout);
+    clearInterval(countdownInterval);
+    clearInterval(targetRotateInterval);
+    Array.from(stage.querySelectorAll('.balloon')).forEach(b => b.remove());
+
+    endTitle.textContent = reason === 'outOfLives' ? '💥 Out of Lives!' : "⏰ Time's Up!";
+    endText.textContent = 'Final Score: ' + score + ' · Balloons popped correctly: ' + popped + ' · Missed: ' + missed;
+    endOverlay.style.display = 'flex';
+  }
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('playAgainBtn').addEventListener('click', startGame);
+
+  updateHud();
+</script>
+
+</body>
+</html>
